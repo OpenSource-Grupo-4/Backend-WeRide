@@ -1,4 +1,4 @@
-package org.example.backendweride.platform.iam.domain.model.services;
+package org.example.backendweride.platform.iam.domain.services;
 
 import org.example.backendweride.platform.iam.domain.model.aggregates.Account;
 import org.example.backendweride.platform.iam.domain.model.commands.SignInCommand;
