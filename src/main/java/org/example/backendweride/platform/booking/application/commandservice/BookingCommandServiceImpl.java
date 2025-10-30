@@ -13,6 +13,11 @@ import org.example.backendweride.platform.booking.domain.model.aggregates.Bookin
 
 import java.math.BigDecimal;
 
+/**
+ * Implementation of BookingCommandService to handle booking-related commands.
+ *
+ * @summary This service processes commands for saving booking drafts and creating bookings.
+ */
 @Service
 @Transactional
 public class BookingCommandServiceImpl implements BookingCommandService {

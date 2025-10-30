@@ -103,7 +103,6 @@ public class Booking {
     public BigDecimal getTotalPrice() { return totalPrice; }
     public String getStatus() { return status; }
 
-    // comportamiento de dominio mínimo
     public void confirm() {
         if ("confirmed".equals(this.status)) return;
         this.status = "confirmed";

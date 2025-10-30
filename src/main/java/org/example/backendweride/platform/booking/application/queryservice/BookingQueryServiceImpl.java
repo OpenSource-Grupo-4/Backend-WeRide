@@ -18,6 +18,12 @@ import org.example.backendweride.platform.booking.domain.model.queries.GetBookin
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Service to handle booking-related queries.
+ *
+ * @summary This service retrieves booking information based on provided queries.
+ */
+
 @Service
 public class BookingQueryServiceImpl {
 
