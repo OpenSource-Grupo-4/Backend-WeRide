@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
  * This class serves as a facade for IAM context operations, providing simplified methods for account creation and retrieval.
  *
  * @summary Facade for IAM context operations.
+*/
 
-/*
 @Service
 public class IamContextFacade {
     private final AccountCommandService accountCommandService;
@@ -41,4 +41,3 @@ public class IamContextFacade {
         return result.get().getUserName();
     }
 }
-*/
