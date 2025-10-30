@@ -6,5 +6,5 @@ package org.example.backendweride.platform.iam.domain.model.commands;
  * @summary Command to sign up a new user in WeRide Platform.
  */
 
-public record SignUpCommand(String username, String password, String role) {}
+public record SignUpCommand(String username, String password) {}
 
