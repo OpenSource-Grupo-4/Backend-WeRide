@@ -11,6 +11,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Implementation of UserDetails to represent authenticated user information.
+ *
+ * @summary UserDetails implementation for authenticated users
+ */
 @Getter
 @EqualsAndHashCode
 public class UserDetailsImpl implements UserDetails {

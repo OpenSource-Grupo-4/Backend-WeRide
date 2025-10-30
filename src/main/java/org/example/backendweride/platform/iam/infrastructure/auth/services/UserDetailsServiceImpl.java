@@ -4,6 +4,11 @@ import org.example.backendweride.platform.iam.infrastructure.persistence.jpa.rep
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+/**
+ * Implementation of UserDetailsService to load user details from the database.
+ *
+ * @summary This class implements the UserDetailsService interface to provide user authentication details.
+ */
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final AccountRepository accountRepository;
