@@ -1,14 +1,18 @@
 package org.example.backendweride.platform.iam.infrastructure.auth.services;
 
 import org.example.backendweride.platform.iam.infrastructure.persistence.jpa.repositories.AccountRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
 
 /**
  * Implementation of UserDetailsService to load user details from the database.
  *
  * @summary This class implements the UserDetailsService interface to provide user authentication details.
  */
+@Service
+@Qualifier("defaultUserDetailsService")
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final AccountRepository accountRepository;
