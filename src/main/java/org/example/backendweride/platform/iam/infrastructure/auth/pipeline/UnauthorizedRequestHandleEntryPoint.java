@@ -20,7 +20,6 @@ import java.io.IOException;
 public class UnauthorizedRequestHandleEntryPoint implements AuthenticationEntryPoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(UnauthorizedRequestHandleEntryPoint.class);
 
-
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authenticationException) throws IOException, ServletException {
         LOGGER.error("Unauthorized request: {}", authenticationException.getMessage());
