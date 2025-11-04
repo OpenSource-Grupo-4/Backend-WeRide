@@ -7,6 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 
+/**
+ * Repository interface for managing BookingEntity persistence.
+ *
+ * @summary This repository provides methods to perform CRUD operations and custom queries on BookingEntity.
+ */
 @Repository
 public interface BookingRepository extends JpaRepository<BookingEntity, String> {
 

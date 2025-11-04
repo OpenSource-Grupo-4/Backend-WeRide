@@ -28,6 +28,12 @@ import java.util.Optional;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+/**
+ * BookingController handles HTTP requests related to bookings.
+ *
+ * @summary This controller provides endpoints for creating bookings, saving drafts,
+ *          retrieving bookings by ID, searching bookings, and getting drafts by customer.
+ */
 @RestController
 @RequestMapping("/bookings")
 public class BookingController {
@@ -42,7 +48,7 @@ public class BookingController {
 
     @PostMapping("/draft")
     public ResponseEntity<BookingResource> saveDraft(@RequestBody CreateBookingResource resource) {
-        // map resource to SaveBookingDraftCommand (user sends vehicleType which is the vehicle id)
+        // PD:Map resource to SaveBookingDraftCommand (user sends vehicleType which is the vehicle id)
         SaveBookingDraftCommand cmd = new SaveBookingDraftCommand(
             null,
             resource.customerId(),
@@ -57,7 +63,6 @@ public class BookingController {
             return ResponseEntity.badRequest().build();
         }
 
-        // read via query service and return resource
         Optional<BookingResource> resp = bookingQueryService.getBookingById(new GetBookingByIdQuery(result.draftId()));
         return resp.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }

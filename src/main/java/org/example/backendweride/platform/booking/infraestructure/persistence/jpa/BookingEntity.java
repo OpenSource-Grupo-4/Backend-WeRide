@@ -7,6 +7,11 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.math.BigDecimal;
 
+/**
+ * Booking JPA entity.
+ *
+ * @summary This entity represents a booking record in the database.
+ */
 @Entity
 @Table(name = "bookings")
 public class BookingEntity {

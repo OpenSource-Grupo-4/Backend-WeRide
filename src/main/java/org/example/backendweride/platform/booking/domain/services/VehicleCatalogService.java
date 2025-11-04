@@ -11,11 +11,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * In-memory vehicle catalog service used to lookup vehicle data such as price per minute.
+ * Service for managing the vehicle catalog.
  *
- * This service lives in the application/service layer because it represents application-level
- * read-only data used by booking application services (pricing, availability, command handlers).
- * It is annotated as a Spring {@code @Service} so it can be injected where needed.
+ * @summary This service provides access to vehicle information such as id, brand, model, type, and pricing.
  */
 @Service
 public class VehicleCatalogService {
@@ -25,7 +23,8 @@ public class VehicleCatalogService {
     private final Map<String, Vehicle> byId = new HashMap<>();
 
     public VehicleCatalogService() {
-        // Initialize with a simplified view of the provided JSON (id + pricePerMinute + metadata)
+        // Initialize in JSON format for reference:
+        // Simplified view of the provided JSON (id + pricePerMinute + metadata)
         byId.put("1", new Vehicle("1","Xiaomi","M365","electric_scooter", new BigDecimal("0.5")));
         byId.put("2", new Vehicle("2","Trek","FX 3","bike", new BigDecimal("0.3")));
         byId.put("3", new Vehicle("3","Segway","Ninebot Max","electric_scooter", new BigDecimal("0.6")));
@@ -46,7 +45,7 @@ public class VehicleCatalogService {
     }
 
     /**
-     * Find vehicles by their type (e.g. "electric_scooter", "bike"). Returns an ordered list.
+     * Find vehicles by their type (example: "electric_scooter", "bike"). Returns an ordered list.
      */
     public List<Vehicle> findByType(String type) {
         Objects.requireNonNull(type, "type");

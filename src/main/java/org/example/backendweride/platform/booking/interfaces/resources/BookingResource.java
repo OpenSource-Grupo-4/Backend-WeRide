@@ -4,6 +4,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.math.BigDecimal;
 
+/**
+ * BookingResource record representing booking details.
+ *
+ * @summary This record encapsulates the details of a booking including customer
+ * and vehicle information, timing, pricing, and status.
+ *
+ */
 public record BookingResource(
     String id,
     String customerId,

@@ -4,6 +4,13 @@ import org.example.backendweride.platform.booking.infraestructure.persistence.jp
 import org.example.backendweride.platform.booking.interfaces.resources.BookingResource;
 import org.example.backendweride.platform.booking.domain.services.VehicleCatalogService;
 
+/**
+ * Assembler class to convert BookingEntity to BookingResource.
+ *
+ * @summary This class provides a method to transform a BookingEntity object
+ *          into a BookingResource object, enriching it with vehicle details
+ *          from the VehicleCatalogService.
+ */
 public class BookingResourceFromEntityAssembler {
 
     public static BookingResource toResource(BookingEntity e) {
