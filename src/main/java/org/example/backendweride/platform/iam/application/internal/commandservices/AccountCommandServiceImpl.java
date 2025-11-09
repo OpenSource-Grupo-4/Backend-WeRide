@@ -6,28 +6,26 @@ import org.example.backendweride.platform.iam.application.internal.outboundservi
 import org.example.backendweride.platform.iam.domain.model.aggregates.Account;
 import org.example.backendweride.platform.iam.domain.model.commands.SignInCommand;
 import org.example.backendweride.platform.iam.domain.model.commands.SignUpCommand;
+import org.example.backendweride.platform.iam.domain.model.valueobjects.ProfileId; // IMPORTANTE
 import org.example.backendweride.platform.iam.domain.services.AccountCommandService;
 import org.example.backendweride.platform.iam.infrastructure.persistence.jpa.repositories.AccountRepository;
+import org.example.backendweride.platform.profile.interfaces.acl.ProfileContextFacade; // IMPORTANTE
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-/**
- * AccountCommandServiceImpl is responsible for handling account-related commands such as sign-up and sign-in.
- *
- * @summary This service interacts with the AccountRepository to manage account data,
- *          uses HashingService for password encoding, and TokenService for token generation.
- */
 @Service
 public class AccountCommandServiceImpl implements AccountCommandService {
     private final AccountRepository accountRepository;
     private final HashingService hashingService;
     private final TokenService tokenService;
+    private final ProfileContextFacade profileContextFacade;
 
-    public AccountCommandServiceImpl(AccountRepository accountRepository, HashingService hashingService, TokenService tokenService) {
+    public AccountCommandServiceImpl(AccountRepository accountRepository, HashingService hashingService, TokenService tokenService, ProfileContextFacade profileContextFacade) {
         this.accountRepository = accountRepository;
         this.hashingService = hashingService;
         this.tokenService = tokenService;
+        this.profileContextFacade = profileContextFacade;
     }
 
     @Override
@@ -39,7 +37,15 @@ public class AccountCommandServiceImpl implements AccountCommandService {
 
         try{
             var accountCreated = accountRepository.save(account);
-            return Optional.of(accountCreated);
+
+            Long profileIdValue = profileContextFacade.createProfileForAccount(accountCreated.getId());
+
+            accountCreated.updateProfileId(new ProfileId(profileIdValue));
+
+            var updatedAccount = accountRepository.save(accountCreated);
+
+            return Optional.of(updatedAccount);
+
         } catch (Exception e) {
             throw new RuntimeException("Error saving user: %s".formatted(e.getMessage()));
         }
@@ -56,4 +62,3 @@ public class AccountCommandServiceImpl implements AccountCommandService {
         throw new RuntimeException("User not found");
     }
 }
-
