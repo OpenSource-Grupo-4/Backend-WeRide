@@ -1,0 +1,11 @@
+package org.example.backendweride.travelhistory.domain.services.queryservices;
+
+import org.example.backendweride.travelhistory.domain.model.aggregates.TravelHistory;
+import org.example.backendweride.travelhistory.domain.model.queries.GetTravelsHistoryById;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface TravelHistoryQueryService {
+    Optional<List<TravelHistory>> handle(GetTravelsHistoryById query);
+}
