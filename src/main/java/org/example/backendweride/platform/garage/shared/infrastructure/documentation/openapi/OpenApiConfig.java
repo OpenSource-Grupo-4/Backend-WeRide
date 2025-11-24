@@ -11,8 +11,8 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("WeRide API")
+                        .title("WeRideAPI")
                         .version("1.0")
-                        .description("Documentación interactiva de la API WeRide"));
+                        .description("WeRide API Documentation"));
     }
 }
