@@ -1,9 +1,7 @@
 package org.example.backendweride.platform.plans.domain.model.aggregates;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,6 +11,8 @@ import java.util.List;
  * @summary This entity defines the structure and attributes of subscription plans available in the system.
  */
 @Entity
+@Table(name = "plans")
+@Getter @Setter
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
