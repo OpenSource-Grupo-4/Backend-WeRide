@@ -19,7 +19,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api/v1/location", produces = APPLICATION_JSON_VALUE)
-@Tag(name = "locations")
+@Tag(name = "Locations")
 public class LocationController {
     private final LocationCommandService locationCommandService;
     private final LocationQueryService locationQueryService;
