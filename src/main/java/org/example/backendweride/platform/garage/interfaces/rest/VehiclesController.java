@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/v1/garage/vehicles", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/v1/vehicles", produces = MediaType.APPLICATION_JSON_VALUE)
 public class VehiclesController {
 
     private final VehicleCommandService vehicleCommandService;
@@ -39,9 +39,8 @@ public class VehiclesController {
         var getVehicleByIdQuery = new GetVehicleByIdQuery(vehicleId);
         var vehicle = vehicleQueryService.handle(getVehicleByIdQuery);
 
-        if (vehicle.isEmpty()) return ResponseEntity.badRequest().build();
+        return vehicle.map(value -> new ResponseEntity<>(VehicleResourceFromEntityAssembler.toResourceFromEntity(value), HttpStatus.CREATED)).orElseGet(() -> ResponseEntity.badRequest().build());
 
-        return new ResponseEntity<>(VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle.get()), HttpStatus.CREATED);
     }
 
     // 2. GET: Listar Todos
@@ -63,9 +62,8 @@ public class VehiclesController {
         var getVehicleByIdQuery = new GetVehicleByIdQuery(id);
         var vehicle = vehicleQueryService.handle(getVehicleByIdQuery);
 
-        if (vehicle.isEmpty()) return ResponseEntity.notFound().build();
+        return vehicle.map(value -> ResponseEntity.ok(VehicleResourceFromEntityAssembler.toResourceFromEntity(value))).orElseGet(() -> ResponseEntity.notFound().build());
 
-        return ResponseEntity.ok(VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle.get()));
     }
 
     // 4. PUT: Actualizar
@@ -74,9 +72,8 @@ public class VehiclesController {
         var command = UpdateVehicleCommandFromResourceAssembler.toCommandFromResource(id, resource);
         var updatedVehicle = vehicleCommandService.handle(command);
 
-        if (updatedVehicle.isEmpty()) return ResponseEntity.notFound().build();
+        return updatedVehicle.map(vehicle -> ResponseEntity.ok(VehicleResourceFromEntityAssembler.toResourceFromEntity(vehicle))).orElseGet(() -> ResponseEntity.notFound().build());
 
-        return ResponseEntity.ok(VehicleResourceFromEntityAssembler.toResourceFromEntity(updatedVehicle.get()));
     }
 
     // 5. DELETE: Eliminar (NUEVO)
