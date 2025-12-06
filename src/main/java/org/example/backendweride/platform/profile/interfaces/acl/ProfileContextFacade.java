@@ -13,11 +13,6 @@ public class ProfileContextFacade {
         this.profileCommandService = profileCommandService;
     }
 
-    /**
-     * Crea un perfil vacío asociado a una cuenta de IAM.
-     * @param accountId El ID de la cuenta de IAM
-     * @return El ID del perfil creado
-     */
     public Long createProfileForAccount(Long accountId) {
         var command = new CreateProfileCommand(accountId);
         var profile = profileCommandService.handle(command);

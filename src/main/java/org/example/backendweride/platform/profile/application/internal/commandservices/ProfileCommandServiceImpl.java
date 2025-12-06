@@ -21,7 +21,7 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
 
     @Override
     public Profile handle(CreateProfileCommand command) {
-        if (profileRepository.existsByAccountId(command.accountId())) {
+        if (profileRepository.existsByUserId(command.userId())) {
             throw new RuntimeException("Un perfil para esta cuenta ya existe.");
         }
         var profile = new Profile(command);
@@ -32,7 +32,7 @@ public class ProfileCommandServiceImpl implements ProfileCommandService {
 
     @Override
     public Optional<Profile> handle(UpdateProfileCommand command) {
-        var entity = profileRepository.findById(command.profileId());
+        var entity = profileRepository.findById(command.userId());
         if (entity.isEmpty()) {
             return Optional.empty();
         }
