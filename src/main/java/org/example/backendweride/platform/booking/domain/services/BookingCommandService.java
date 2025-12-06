@@ -15,7 +15,7 @@ public interface BookingCommandService {
     CreateBookingResult createBooking(CreateBookingCommand command);
 
     // Result types kept in domain layer for simplicity
-    record SaveDraftResult(String draftId, boolean success, String message) { }
+    record SaveDraftResult(Long draftId, boolean success, String message) { }
 
-    record CreateBookingResult(String bookingId, boolean success, String message) { }
+    record CreateBookingResult(Long bookingId, boolean success, String message) { }
 }

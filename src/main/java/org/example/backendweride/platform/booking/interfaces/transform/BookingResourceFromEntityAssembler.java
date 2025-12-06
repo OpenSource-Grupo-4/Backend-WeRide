@@ -1,41 +1,51 @@
 package org.example.backendweride.platform.booking.interfaces.transform;
 
-import org.example.backendweride.platform.booking.infraestructure.persistence.jpa.BookingEntity;
+import org.example.backendweride.platform.booking.domain.model.aggregates.Booking;
 import org.example.backendweride.platform.booking.interfaces.resources.BookingResource;
-import org.example.backendweride.platform.booking.domain.services.VehicleCatalogService;
+import org.example.backendweride.platform.booking.interfaces.resources.BookingResource.RatingResource;
 
 /**
- * Assembler class to convert BookingEntity to BookingResource.
+ * Assembler class to convert Booking aggregate to BookingResource.
  *
- * @summary This class provides a method to transform a BookingEntity object
- *          into a BookingResource object, enriching it with vehicle details
- *          from the VehicleCatalogService.
+ * @summary This class provides a method to transform a Booking aggregate object
+ *          into a BookingResource object for API responses.
  */
 public class BookingResourceFromEntityAssembler {
 
-    public static BookingResource toResource(BookingEntity e) {
-        if (e == null) return null;
+    public static BookingResource toResource(Booking booking) {
+        if (booking == null) return null;
 
-        VehicleCatalogService.Vehicle vehicle = null;
-        var catalog = new VehicleCatalogService();
-        var opt = catalog.findById(e.getVehicleId());
-        if (opt.isPresent()) vehicle = opt.get();
-
-        String brand = vehicle != null ? vehicle.brand() : null;
-        String model = vehicle != null ? vehicle.model() : null;
+        RatingResource ratingResource = null;
+        if (booking.getRating() != null) {
+            ratingResource = new RatingResource(
+                booking.getRating().getScore(),
+                booking.getRating().getComment()
+            );
+        }
 
         return new BookingResource(
-            e.getId(),
-            e.getCustomerId(),
-            e.getVehicleId(),
-            brand,
-            model,
-            e.getDate(),
-            e.getUnlockTime(),
-            e.getDurationMinutes(),
-            e.getPricePerMinute(),
-            e.getTotalPrice(),
-            e.getStatus()
+            booking.getId(),
+            booking.getBookingId(),
+            booking.getUserId(),
+            booking.getVehicleId(),
+            booking.getStartLocationId(),
+            booking.getEndLocationId(),
+            booking.getReservedAt(),
+            booking.getStartDate(),
+            booking.getEndDate(),
+            booking.getActualStartDate(),
+            booking.getActualEndDate(),
+            booking.getStatus(),
+            booking.getTotalCost(),
+            booking.getDiscount(),
+            booking.getFinalCost(),
+            booking.getPaymentMethod(),
+            booking.getPaymentStatus(),
+            booking.getDistance(),
+            booking.getDuration(),
+            booking.getAverageSpeed(),
+            ratingResource,
+            booking.getIssues()
         );
     }
 }

@@ -2,6 +2,7 @@ package org.example.backendweride.platform.booking.domain.services;
 
 import java.util.Optional;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
+import org.example.backendweride.platform.booking.domain.model.commands.DeleteBookingDraftCommand;
 
 /**
  * Service interface for handling booking draft operations.
@@ -14,8 +15,8 @@ public interface BookingDraftService {
 
     BookingCommandService.SaveDraftResult updateDraft(SaveBookingDraftCommand command);
 
-    BookingCommandService.SaveDraftResult deleteDraft(String draftId);
+    BookingCommandService.SaveDraftResult deleteDraft(DeleteBookingDraftCommand command);
 
-    Optional<SaveBookingDraftCommand> getDraftById(String draftId);
+    Optional<SaveBookingDraftCommand> getDraftById(Long draftId);
 
 }

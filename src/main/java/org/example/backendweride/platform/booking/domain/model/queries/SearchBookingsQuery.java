@@ -9,8 +9,8 @@ import java.time.LocalDate;
  *
  */
 public record SearchBookingsQuery(
-    String customerId,
-    String vehicleId,
+    Long customerId,
+    Long vehicleId,
     String status,
     LocalDate startAtFrom,
     LocalDate startAtTo,
