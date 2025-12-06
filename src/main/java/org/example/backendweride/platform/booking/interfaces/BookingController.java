@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,14 +17,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import org.example.backendweride.platform.booking.interfaces.resources.CreateBookingResource;
+import org.example.backendweride.platform.booking.interfaces.resources.SaveBookingDraftResource;
 import org.example.backendweride.platform.booking.interfaces.resources.BookingResource;
 import org.example.backendweride.platform.booking.interfaces.transform.CreateBookingCommandFromResourceAssembler;
+import org.example.backendweride.platform.booking.interfaces.transform.SaveBookingDraftCommandFromResourceAssembler;
 import org.example.backendweride.platform.booking.domain.services.BookingCommandService;
-import org.example.backendweride.platform.booking.application.queryservice.BookingQueryServiceImpl;
+import org.example.backendweride.platform.booking.domain.services.BookingQueryService;
+import org.example.backendweride.platform.booking.domain.services.BookingDraftService;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
 import org.example.backendweride.platform.booking.domain.model.commands.CreateBookingCommand;
+import org.example.backendweride.platform.booking.domain.model.commands.DeleteBookingDraftCommand;
 import org.example.backendweride.platform.booking.domain.model.queries.GetBookingByIdQuery;
 import org.example.backendweride.platform.booking.domain.model.queries.SearchBookingsQuery;
 import org.example.backendweride.platform.booking.domain.model.queries.GetBookingDraftsByCustomerQuery;
@@ -46,11 +53,15 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class BookingController {
 
     private final BookingCommandService commandService;
-    private final BookingQueryServiceImpl bookingQueryService;
+    private final BookingQueryService bookingQueryService;
+    private final BookingDraftService draftService;
 
-    public BookingController(BookingCommandService commandService, BookingQueryServiceImpl bookingQueryService) {
+    public BookingController(BookingCommandService commandService,
+                           BookingQueryService bookingQueryService,
+                           BookingDraftService draftService) {
         this.commandService = commandService;
         this.bookingQueryService = bookingQueryService;
+        this.draftService = draftService;
     }
 
     /**
@@ -59,22 +70,13 @@ public class BookingController {
      * @return ResponseEntity containing the saved booking draft or an error status.
      */
     @PostMapping("/draft")
-    @Operation(summary = "Create a new booking", description = "Create a new booking with the provided details")
+    @Operation(summary = "Save a booking draft", description = "Save a booking draft with the provided details")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Booking created successfully"),
-            @ApiResponse(responseCode = "404", description = "Booking could not be found")
+            @ApiResponse(responseCode = "200", description = "Draft saved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid data provided")
     })
-    public ResponseEntity<BookingResource> saveDraft(@RequestBody CreateBookingResource resource) {
-        // PD:Map resource to SaveBookingDraftCommand (user sends vehicleType which is the vehicle id)
-        SaveBookingDraftCommand cmd = new SaveBookingDraftCommand(
-            null,
-            resource.customerId(),
-            resource.vehicleType(),
-            resource.date(),
-            resource.unlockTime(),
-            resource.durationMinutes()
-        );
-
+    public ResponseEntity<BookingResource> saveDraft(@RequestBody SaveBookingDraftResource resource) {
+        SaveBookingDraftCommand cmd = SaveBookingDraftCommandFromResourceAssembler.toCommand(resource);
         var result = commandService.saveDraft(cmd);
         if (!result.success()) {
             return ResponseEntity.badRequest().build();
@@ -115,7 +117,7 @@ public class BookingController {
             @ApiResponse(responseCode = "200", description = "Booking retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "Booking not found")
     })
-    public ResponseEntity<BookingResource> getBookingById(@PathVariable("id") String id) {
+    public ResponseEntity<BookingResource> getBookingById(@PathVariable("id") Long id) {
         var opt = bookingQueryService.getBookingById(new GetBookingByIdQuery(id));
         return opt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -138,9 +140,9 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "Invalid search parameters")
     })
     public ResponseEntity<Page<BookingResource>> searchBookings(
-        @RequestParam(required = false) String customerId,
-        @RequestParam(required = false) String vehicleId,
-        @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long customerId,
+            @RequestParam(required = false) Long vehicleId,
+            @RequestParam(required = false) String status,
         @RequestParam(required = false) String startAtFrom,
         @RequestParam(required = false) String startAtTo,
         @RequestParam(defaultValue = "0") int page,
@@ -175,13 +177,161 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "Invalid customer ID")
     })
     public ResponseEntity<Page<BookingResource>> getDraftsByCustomer(
-        @RequestParam String customerId,
+        @RequestParam Long customerId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
         GetBookingDraftsByCustomerQuery q = new GetBookingDraftsByCustomerQuery(customerId, page, size);
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         var results = bookingQueryService.getBookingDraftsByCustomer(q, pageable);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Get bookings by vehicle ID.
+     * @param vehicleId The unique identifier of the vehicle.
+     * @param page Page number for pagination (default is 0).
+     * @param size Page size for pagination (default is 20).
+     * @return ResponseEntity containing a page of bookings for the vehicle.
+     */
+    @GetMapping("/vehicle/{vehicleId}")
+    @Operation(summary = "Get bookings by vehicle", description = "Retrieve bookings for a specific vehicle")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bookings retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid vehicle ID")
+    })
+    public ResponseEntity<Page<BookingResource>> getBookingsByVehicle(
+        @PathVariable Long vehicleId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByVehicleQuery(vehicleId, page, size);
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        var results = bookingQueryService.getBookingsByVehicle(q, pageable);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Get bookings by status.
+     * @param status The status of bookings to retrieve (draft, confirmed, cancelled).
+     * @param page Page number for pagination (default is 0).
+     * @param size Page size for pagination (default is 20).
+     * @return ResponseEntity containing a page of bookings with the specified status.
+     */
+    @GetMapping("/status/{status}")
+    @Operation(summary = "Get bookings by status", description = "Retrieve bookings with a specific status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bookings retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid status")
+    })
+    public ResponseEntity<Page<BookingResource>> getBookingsByStatus(
+        @PathVariable String status,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByStatusQuery(status, page, size);
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        var results = bookingQueryService.getBookingsByStatus(q, pageable);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Delete a booking draft.
+     * @param draftId The unique identifier of the draft to delete.
+     * @return ResponseEntity with the result of the deletion.
+     */
+    @DeleteMapping("/draft/{draftId}")
+    @Operation(summary = "Delete a booking draft", description = "Delete a booking draft by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Draft deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Draft not found"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+    })
+    public ResponseEntity<String> deleteDraft(@PathVariable Long draftId) {
+        // Get authenticated user ID
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userIdStr = authentication.getName();
+        Long userId = Long.parseLong(userIdStr);
+
+        DeleteBookingDraftCommand cmd = new DeleteBookingDraftCommand(draftId, userId);
+        var result = draftService.deleteDraft(cmd);
+
+        if (!result.success()) {
+            return ResponseEntity.badRequest().body(result.message());
+        }
+
+        return ResponseEntity.ok(result.message());
+    }
+
+    /**
+     * Get all bookings for a specific user.
+     * @param userId The unique identifier of the user.
+     * @param page Page number for pagination (default is 0).
+     * @param size Page size for pagination (default is 20).
+     * @return ResponseEntity containing a page of bookings for the user.
+     */
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Get bookings by user ID", description = "Retrieve all bookings for a specific user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Bookings retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid user ID")
+    })
+    public ResponseEntity<Page<BookingResource>> getBookingsByUserId(
+        @PathVariable Long userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByUserIdQuery(userId);
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        var results = bookingQueryService.getBookingsByUserId(q, pageable);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Get pending bookings for a specific user.
+     * @param userId The unique identifier of the user.
+     * @param page Page number for pagination (default is 0).
+     * @param size Page size for pagination (default is 20).
+     * @return ResponseEntity containing a page of pending bookings for the user.
+     */
+    @GetMapping("/user/{userId}/pending")
+    @Operation(summary = "Get pending bookings by user", description = "Retrieve pending bookings for a specific user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pending bookings retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid user ID")
+    })
+    public ResponseEntity<Page<BookingResource>> getPendingBookingsByUser(
+        @PathVariable Long userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetPendingBookingsByUserQuery(userId);
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        var results = bookingQueryService.getPendingBookingsByUser(q, pageable);
+        return ResponseEntity.ok(results);
+    }
+
+    /**
+     * Get completed bookings for a specific user.
+     * @param userId The unique identifier of the user.
+     * @param page Page number for pagination (default is 0).
+     * @param size Page size for pagination (default is 20).
+     * @return ResponseEntity containing a page of completed bookings for the user.
+     */
+    @GetMapping("/user/{userId}/completed")
+    @Operation(summary = "Get completed bookings by user", description = "Retrieve completed bookings for a specific user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Completed bookings retrieved successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid user ID")
+    })
+    public ResponseEntity<Page<BookingResource>> getCompletedBookingsByUser(
+        @PathVariable Long userId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size
+    ) {
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetCompletedBookingsByUserQuery(userId);
+        Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
+        var results = bookingQueryService.getCompletedBookingsByUser(q, pageable);
         return ResponseEntity.ok(results);
     }
 

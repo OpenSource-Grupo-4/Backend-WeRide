@@ -1,28 +1,32 @@
 package org.example.backendweride.platform.booking.infraestructure.persistence.jpa;
 
+import org.example.backendweride.platform.booking.domain.model.aggregates.Booking;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
- * Repository interface for managing BookingEntity persistence.
+ * Repository interface for managing Booking persistence.
  *
- * @summary This repository provides methods to perform CRUD operations and custom queries on BookingEntity.
+ * @summary This repository provides methods to perform CRUD operations and custom queries on Booking aggregate.
  */
 @Repository
-public interface BookingRepository extends JpaRepository<BookingEntity, String> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    Page<BookingEntity> findByCustomerId(String customerId, Pageable pageable);
+    Optional<Booking> findByBookingId(Long bookingId);
 
-    Page<BookingEntity> findByCustomerIdAndStatus(String customerId, String status, Pageable pageable);
+    Page<Booking> findByUserId(Long userId, Pageable pageable);
 
-    Page<BookingEntity> findByStatus(String status, Pageable pageable);
+    Page<Booking> findByUserIdAndStatus(Long userId, String status, Pageable pageable);
 
-    Page<BookingEntity> findByDateBetween(LocalDate from, LocalDate to, Pageable pageable);
+    Page<Booking> findByStatus(String status, Pageable pageable);
 
-    Page<BookingEntity> findByVehicleId(String vehicleId, Pageable pageable);
+    Page<Booking> findByStartDateBetween(LocalDateTime from, LocalDateTime to, Pageable pageable);
+
+    Page<Booking> findByVehicleId(Long vehicleId, Pageable pageable);
 
 }

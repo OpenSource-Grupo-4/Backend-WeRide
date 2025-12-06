@@ -1,17 +1,14 @@
 package org.example.backendweride.platform.booking.interfaces.transform;
 
-import org.example.backendweride.platform.booking.interfaces.resources.CreateBookingResource;
-import org.example.backendweride.platform.booking.domain.model.commands.CreateBookingCommand;
+import org.example.backendweride.platform.booking.interfaces.resources.SaveBookingDraftResource;
+import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
 
 /**
- * Assembler class to convert CreateBookingResource to CreateBookingCommand.
- *
- * @summary This class provides a method to transform a CreateBookingResource object
- *          into a CreateBookingCommand object for processing booking creation requests.
+ * Assembler class to convert SaveBookingDraftResource to SaveBookingDraftCommand.
  */
-public class CreateBookingCommandFromResourceAssembler {
+public class SaveBookingDraftCommandFromResourceAssembler {
 
-    public static CreateBookingCommand toCommand(CreateBookingResource r) {
+    public static SaveBookingDraftCommand toCommand(SaveBookingDraftResource r) {
         if (r == null) return null;
 
         Integer ratingScore = null;
@@ -22,7 +19,7 @@ public class CreateBookingCommandFromResourceAssembler {
             ratingComment = r.rating().comment();
         }
 
-        return new CreateBookingCommand(
+        return new SaveBookingDraftCommand(
             r.userId(),
             r.vehicleId(),
             r.startLocationId(),
@@ -46,3 +43,4 @@ public class CreateBookingCommandFromResourceAssembler {
         );
     }
 }
+
