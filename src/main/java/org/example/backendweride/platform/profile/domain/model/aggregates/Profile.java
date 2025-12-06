@@ -1,62 +1,33 @@
 package org.example.backendweride.platform.profile.domain.model.aggregates;
 
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.example.backendweride.platform.profile.domain.model.commands.CreateProfileCommand;
-import org.example.backendweride.platform.profile.domain.model.commands.UpdateProfileCommand;
-import org.example.backendweride.platform.profile.domain.model.valueobjects.Preferences;
-import org.example.backendweride.platform.profile.domain.model.valueobjects.Statistics;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDate;
-
-@Getter
+@Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Profile {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Getter
     private Long id;
-    private final Long userId;
-    private String name;
-    private String phone;
-    private String profilePicture;
-    private LocalDate dateOfBirth;
-    private String address;
-    private String emergencyContact;
-    private final Preferences preferences;
-    private final Statistics statistics;
+    @Getter
+    private Long userId;
+    @Getter
+    private String firstName;
+    @Getter
+    private String lastName;
+    @Getter
+    private String email;
 
-    public Profile(CreateProfileCommand command) {
-        this.userId = command.userId();
-        this.name = "";
-        this.phone = "";
-        this.profilePicture = "";
-        this.dateOfBirth = null;
-        this.address = "";
-        this.emergencyContact = "";
-        this.preferences = Preferences.defaultPreferences();
-        this.statistics = Statistics.defaultStatistics();
-    }
+    protected Profile() {}
 
-    public Profile(Long id, Long userId, String name, String phone, String profilePicture, LocalDate dateOfBirth, String address, String emergencyContact, Preferences preferences, Statistics statistics) {
-        this.id = id;
-        this.userId = userId;
-        this.name = name;
-        this.phone = phone;
-        this.profilePicture = profilePicture;
-        this.dateOfBirth = dateOfBirth;
-        this.address = address;
-        this.emergencyContact = emergencyContact;
-        this.preferences = preferences;
-        this.statistics = statistics;
-    }
-
-    public void update(UpdateProfileCommand command) {
-        this.name = command.name();
-        this.phone = command.phone();
-        this.profilePicture = command.profilePicture();
-        this.dateOfBirth = command.dateOfBirth();
-        this.address = command.address();
-        this.emergencyContact = command.emergencyContact();
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public Profile(CreateProfileCommand profileCommand) {
+        this.userId = profileCommand.userId();
+        this.firstName = profileCommand.firstName();
+        this.lastName = profileCommand.lastName();
+        this.email = profileCommand.email();
     }
 }
