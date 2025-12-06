@@ -1,7 +1,7 @@
 package org.example.backendweride.platform.profile.application.internal.queryservices;
 
 import org.example.backendweride.platform.profile.domain.model.aggregates.Profile;
-import org.example.backendweride.platform.profile.domain.model.queries.GetProfileByAccountIdQuery;
+import org.example.backendweride.platform.profile.domain.model.queries.GetProfileByUserIdQuery;
 import org.example.backendweride.platform.profile.domain.model.queries.GetProfileByIdQuery;
 import org.example.backendweride.platform.profile.domain.services.ProfileQueryService;
 import org.example.backendweride.platform.profile.infrastructure.persistence.jpa.ProfileEntity;
@@ -26,8 +26,8 @@ public class ProfileQueryServiceImpl implements ProfileQueryService {
     }
 
     @Override
-    public Optional<Profile> handle(GetProfileByAccountIdQuery query) {
-        return profileRepository.findByAccountId(query.accountId())
+    public Optional<Profile> handle(GetProfileByUserIdQuery query) {
+        return profileRepository.findByUserId(query.userId())
                 .map(ProfileEntity::toDomain);
     }
 }

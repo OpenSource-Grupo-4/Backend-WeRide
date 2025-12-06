@@ -20,7 +20,7 @@ public class ProfileEntity {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private Long accountId;
+    private Long userId;
 
     private String name;
     private String phone;
@@ -37,7 +37,7 @@ public class ProfileEntity {
 
     public ProfileEntity(Profile profile) {
         this.id = profile.getId();
-        this.accountId = profile.getAccountId();
+        this.userId = profile.getUserId();
         this.name = profile.getName();
         this.phone = profile.getPhone();
         this.profilePicture = profile.getProfilePicture();
@@ -51,7 +51,7 @@ public class ProfileEntity {
     public Profile toDomain() {
         return new Profile(
                 this.id,
-                this.accountId,
+                this.userId,
                 this.name,
                 this.phone,
                 this.profilePicture,

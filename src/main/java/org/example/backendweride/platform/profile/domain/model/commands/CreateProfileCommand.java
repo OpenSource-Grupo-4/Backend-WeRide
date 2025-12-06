@@ -1,4 +1,4 @@
 package org.example.backendweride.platform.profile.domain.model.commands;
 
-public record CreateProfileCommand(Long accountId) {
+public record CreateProfileCommand(Long userId) {
 }
