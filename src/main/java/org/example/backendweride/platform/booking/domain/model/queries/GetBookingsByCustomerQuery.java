@@ -6,7 +6,7 @@ package org.example.backendweride.platform.booking.domain.model.queries;
  * @summary This query retrieves bookings associated with a specific customer, supporting pagination through page and size parameters.
  */
 public record GetBookingsByCustomerQuery(
-    String customerId,
+    Long customerId,
     int page,
     int size
 ) {

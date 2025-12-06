@@ -6,7 +6,7 @@ package org.example.backendweride.platform.booking.domain.model.queries;
  * @summary This query retrieves booking drafts associated with a specific customer, supporting pagination through page and size parameters.
  */
 public record GetBookingDraftsByCustomerQuery(
-    String customerId,
+    Long customerId,
     int page,
     int size
 ) {

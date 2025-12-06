@@ -6,6 +6,6 @@ package org.example.backendweride.platform.booking.domain.model.queries;
  * @summary This query retrieves a booking based on the provided booking ID.
  */
 public record GetBookingByIdQuery(
-    String bookingId
+    Long bookingId
 ) {
 }

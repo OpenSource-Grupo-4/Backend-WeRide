@@ -1,115 +1,249 @@
 package org.example.backendweride.platform.booking.domain.model.aggregates;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.math.BigDecimal;
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 import org.example.backendweride.platform.booking.domain.model.commands.CreateBookingCommand;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
-import org.example.backendweride.platform.booking.infraestructure.persistence.jpa.BookingEntity;
+import org.example.backendweride.platform.booking.domain.model.valueobjects.Rating;
+import org.example.backendweride.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 
 /**
- * Add booking aggregate root.
+ * Booking aggregate root
+ * This class represents the aggregate root for the Booking entity.
  *
+ * @see AuditableAbstractAggregateRoot
  */
-public class Booking {
+@Getter
+@Setter
+@Entity
+@Table(name = "bookingses")
+public class Booking extends AuditableAbstractAggregateRoot<Booking> {
 
-    private final String id;
-    private final String customerId;
-    private final String vehicleId;
-    private final LocalDate date;
-    private final LocalTime unlockTime;
-    private final int durationMinutes;
-    private final BigDecimal pricePerMinute;
-    private final BigDecimal totalPrice;
-    private String status; // draft, confirmed, cancelled
+    @NotNull
+    @Column(unique = true, nullable = false)
+    private Long bookingId;
 
-    private Booking(String id,
-                    String customerId,
-                    String vehicleId,
-                    LocalDate date,
-                    LocalTime unlockTime,
-                    int durationMinutes,
-                    BigDecimal pricePerMinute,
-                    BigDecimal totalPrice,
-                    String status) {
-        this.id = Objects.requireNonNull(id, "id");
-        this.customerId = Objects.requireNonNull(customerId, "customerId");
-        this.vehicleId = Objects.requireNonNull(vehicleId, "vehicleId");
-        this.date = Objects.requireNonNull(date, "date");
-        this.unlockTime = Objects.requireNonNull(unlockTime, "unlockTime");
-        this.durationMinutes = durationMinutes;
-        this.pricePerMinute = Objects.requireNonNull(pricePerMinute, "pricePerMinute");
-        this.totalPrice = Objects.requireNonNull(totalPrice, "totalPrice");
-        this.status = Objects.requireNonNull(status, "status");
+    @NotNull
+    private Long userId;
+
+    @NotNull
+    private Long vehicleId;
+
+    private Long startLocationId;
+    private Long endLocationId;
+
+    private LocalDateTime reservedAt;
+
+    @NotNull
+    private LocalDateTime startDate;
+
+    private LocalDateTime endDate;
+    private LocalDateTime actualStartDate;
+    private LocalDateTime actualEndDate;
+
+    @NotBlank
+    private String status; // pending, confirmed, in_progress, completed, cancelled
+
+    private BigDecimal totalCost;
+    private BigDecimal discount;
+    private BigDecimal finalCost;
+
+    @NotBlank
+    private String paymentMethod; // credit_card, debit_card, paypal, etc.
+
+    @NotBlank
+    private String paymentStatus; // pending, paid, failed, refunded
+
+    private Double distance;
+    private Integer duration; // in minutes
+    private Double averageSpeed;
+
+    @Embedded
+    private Rating rating;
+
+    @ElementCollection
+    @CollectionTable(name = "booking_issues", joinColumns = @JoinColumn(name = "booking_id"))
+    @Column(name = "issue")
+    private List<String> issues;
+
+    public Booking() {
+        this.issues = new ArrayList<>();
+    }
+
+    public Booking(Long userId, Long vehicleId, Long startLocationId, Long endLocationId,
+                   LocalDateTime startDate, LocalDateTime endDate, String paymentMethod, String paymentStatus) {
+        this.bookingId = generateBookingId();
+        this.userId = userId;
+        this.vehicleId = vehicleId;
+        this.startLocationId = startLocationId;
+        this.endLocationId = endLocationId;
+        this.reservedAt = LocalDateTime.now();
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = "pending";
+        this.paymentMethod = paymentMethod;
+        this.paymentStatus = paymentStatus;
+        this.issues = new ArrayList<>();
+        this.discount = BigDecimal.ZERO;
     }
 
     /**
-     * Create a booking draft from the command and price per minute.
+     * Create a booking draft from the command.
+     *
+     * @param cmd the SaveBookingDraftCommand
+     * @return the Booking instance in draft status
      */
-    public static Booking createDraftFrom(SaveBookingDraftCommand cmd, BigDecimal pricePerMinute) {
-        Objects.requireNonNull(cmd, "command");
-        Objects.requireNonNull(pricePerMinute, "pricePerMinute");
-        String id = cmd.draftId() == null || cmd.draftId().isBlank() ? java.util.UUID.randomUUID().toString() : cmd.draftId();
-        BigDecimal total = pricePerMinute.multiply(BigDecimal.valueOf(cmd.durationMinutes()));
-        return new Booking(id, cmd.customerId(), cmd.vehicleId(), cmd.date(), cmd.unlockTime(), cmd.durationMinutes(), pricePerMinute, total, "draft");
+    public static Booking createDraftFrom(SaveBookingDraftCommand cmd) {
+        Booking booking = new Booking();
+        booking.bookingId = generateBookingId();
+        booking.userId = cmd.userId();
+        booking.vehicleId = cmd.vehicleId();
+        booking.startLocationId = cmd.startLocationId();
+        booking.endLocationId = cmd.endLocationId();
+        booking.reservedAt = cmd.reservedAt();
+        booking.startDate = cmd.startDate();
+        booking.endDate = cmd.endDate();
+        booking.actualStartDate = cmd.actualStartDate();
+        booking.actualEndDate = cmd.actualEndDate();
+        booking.status = cmd.status();
+        booking.totalCost = cmd.totalCost();
+        booking.discount = cmd.discount();
+        booking.finalCost = cmd.finalCost();
+        booking.paymentMethod = cmd.paymentMethod();
+        booking.paymentStatus = cmd.paymentStatus();
+        booking.distance = cmd.distance();
+        booking.duration = cmd.duration();
+        booking.averageSpeed = cmd.averageSpeed();
+
+        // Set rating if provided
+        if (cmd.ratingScore() != null && cmd.ratingComment() != null) {
+            booking.rating = new Rating();
+            booking.rating.setScore(cmd.ratingScore());
+            booking.rating.setComment(cmd.ratingComment());
+        }
+
+        booking.issues = new ArrayList<>();
+        return booking;
     }
 
     /**
-     * Create a confirmed booking from the command and price per minute.
+     * Create a confirmed booking from the command.
+     *
+     * @param cmd the CreateBookingCommand
+     * @return the Booking instance with all provided data
      */
-    public static Booking createConfirmedFrom(CreateBookingCommand cmd, BigDecimal pricePerMinute) {
-        Objects.requireNonNull(cmd, "command");
-        Objects.requireNonNull(pricePerMinute, "pricePerMinute");
-        String id = cmd.bookingId() == null || cmd.bookingId().isBlank() ? java.util.UUID.randomUUID().toString() : cmd.bookingId();
-        BigDecimal total = pricePerMinute.multiply(BigDecimal.valueOf(cmd.durationMinutes()));
-        return new Booking(id, cmd.customerId(), cmd.vehicleId(), cmd.date(), cmd.unlockTime(), cmd.durationMinutes(), pricePerMinute, total, "confirmed");
+    public static Booking createConfirmedFrom(CreateBookingCommand cmd) {
+        Booking booking = new Booking();
+        booking.bookingId = generateBookingId();  // Auto-generated
+        booking.userId = cmd.userId();
+        booking.vehicleId = cmd.vehicleId();
+        booking.startLocationId = cmd.startLocationId();
+        booking.endLocationId = cmd.endLocationId();
+        booking.reservedAt = cmd.reservedAt();
+        booking.startDate = cmd.startDate();
+        booking.endDate = cmd.endDate();
+        booking.actualStartDate = cmd.actualStartDate();
+        booking.actualEndDate = cmd.actualEndDate();
+        booking.status = cmd.status();
+        booking.totalCost = cmd.totalCost();
+        booking.discount = cmd.discount();
+        booking.finalCost = cmd.finalCost();
+        booking.paymentMethod = cmd.paymentMethod();
+        booking.paymentStatus = cmd.paymentStatus();
+        booking.distance = cmd.distance();
+        booking.duration = cmd.duration();
+        booking.averageSpeed = cmd.averageSpeed();
+
+        // Set rating if provided
+        if (cmd.ratingScore() != null && cmd.ratingComment() != null) {
+            booking.rating = new Rating();
+            booking.rating.setScore(cmd.ratingScore());
+            booking.rating.setComment(cmd.ratingComment());
+        }
+
+        booking.issues = new ArrayList<>();
+        return booking;
     }
 
     /**
-     * Convert to JPA entity.
+     * Generate a booking ID.
+     *
+     * @return the generated booking ID
      */
-    public BookingEntity toEntity() {
-        BookingEntity e = new BookingEntity();
-        e.setId(this.id);
-        e.setCustomerId(this.customerId);
-        e.setVehicleId(this.vehicleId);
-        e.setDate(this.date);
-        e.setUnlockTime(this.unlockTime);
-        e.setDurationMinutes(this.durationMinutes);
-        e.setPricePerMinute(this.pricePerMinute);
-        e.setTotalPrice(this.totalPrice);
-        e.setStatus(this.status);
-        return e;
+    private static Long generateBookingId() {
+        return java.util.UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE;
     }
 
     /**
-     * Build from JPA entity.
+     * Confirm the booking.
      */
-    public static Booking fromEntity(BookingEntity e) {
-        if (e == null) return null;
-        return new Booking(e.getId(), e.getCustomerId(), e.getVehicleId(), e.getDate(), e.getUnlockTime(), e.getDurationMinutes(), e.getPricePerMinute(), e.getTotalPrice(), e.getStatus());
-    }
-
-    // getters
-    public String getId() { return id; }
-    public String getCustomerId() { return customerId; }
-    public String getVehicleId() { return vehicleId; }
-    public LocalDate getDate() { return date; }
-    public LocalTime getUnlockTime() { return unlockTime; }
-    public int getDurationMinutes() { return durationMinutes; }
-    public BigDecimal getPricePerMinute() { return pricePerMinute; }
-    public BigDecimal getTotalPrice() { return totalPrice; }
-    public String getStatus() { return status; }
-
     public void confirm() {
         if ("confirmed".equals(this.status)) return;
         this.status = "confirmed";
     }
 
+    /**
+     * Cancel the booking.
+     */
     public void cancel() {
         this.status = "cancelled";
     }
 
+    /**
+     * Start the booking.
+     */
+    public void start() {
+        this.status = "in_progress";
+        this.actualStartDate = LocalDateTime.now();
+    }
+
+    /**
+     * Complete the booking.
+     */
+    public void complete() {
+        this.status = "completed";
+        this.actualEndDate = LocalDateTime.now();
+    }
+
+    /**
+     * Calculate total cost based on price per minute.
+     *
+     * @param pricePerMinute the price per minute
+     */
+    public void calculateCost(BigDecimal pricePerMinute) {
+        if (this.duration != null && pricePerMinute != null) {
+            this.totalCost = pricePerMinute.multiply(BigDecimal.valueOf(this.duration));
+            this.finalCost = this.totalCost.subtract(this.discount != null ? this.discount : BigDecimal.ZERO);
+        }
+    }
+
+    /**
+     * Add an issue to the booking.
+     *
+     * @param issue the issue description
+     */
+    public void addIssue(String issue) {
+        if (this.issues == null) {
+            this.issues = new ArrayList<>();
+        }
+        this.issues.add(issue);
+    }
+
+    /**
+     * Set rating for the booking.
+     *
+     * @param score the rating score
+     * @param comment the rating comment
+     */
+    public void setRating(Integer score, String comment) {
+        this.rating = new Rating(score, comment);
+    }
 }
