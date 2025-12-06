@@ -51,6 +51,7 @@ public class Vehicle {
     private String companyId;
     @Getter
     private double pricePerMinute;
+
     @Column(length = 500)
     @Getter
     private String image;
