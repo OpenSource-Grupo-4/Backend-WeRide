@@ -1,5 +1,8 @@
 package org.example.backendweride.platform.location.interfaces;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.backendweride.platform.location.domain.model.aggregates.Location;
 import org.example.backendweride.platform.location.domain.services.commandservices.LocationCommandService;
@@ -31,17 +34,26 @@ public class LocationController {
         this.locationQueryService = locationQueryService;
         this.locationCommandService = locationCommandService;
     }
-
     @PostMapping
-    public ResponseEntity<LocationResource> createLocation(@RequestBody CreateLocationResource locationResource) {
+    @Operation(summary = "Crear location", description = "Crea una nueva ubicación. Devuelve 201 con Location header y sin cuerpo.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Created - Location header con URI del recurso"),
+            @ApiResponse(responseCode = "400", description = "Bad Request - payload inválido"),
+            @ApiResponse(responseCode = "404", description = "Not Found - no se pudo crear")
+    })
+    public ResponseEntity<Void> createLocation(@RequestBody CreateLocationResource locationResource) {
         var result = this.locationCommandService.handle(CreateLocationCommandFromResourceAssembler.toCommandFromResource(locationResource));
 
-        return result.map(location -> new ResponseEntity<>(
-                LocationResourceFromEntityAssembler.toResourceFromEntity(location), CREATED
-        )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
+    @Operation(summary = "Obtener todas las locations", description = "Devuelve 200 con la lista o 204 No Content si no hay resultados.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK - lista de locations"),
+            @ApiResponse(responseCode = "204", description = "No Content - no hay locations"),
+            @ApiResponse(responseCode = "404", description = "Not Found - error de consulta")
+    })
     public ResponseEntity<List<Location>> getAllLocation() {
         var result = this.locationQueryService.handle();
         return result.map(response ->
