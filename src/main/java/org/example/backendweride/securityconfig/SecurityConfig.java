@@ -31,11 +31,12 @@ public class SecurityConfig {
 
         // Aquí debes poner tus dominios REALES
         config.setAllowedOrigins(List.of(
+                "http://localhost:4200",
                 "https://weride.duckdns.org",          // backend por dominio
                 "https://frontend-we-ride-lake.vercel.app/"       // frontend desplegado
         ));
 
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

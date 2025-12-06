@@ -1,48 +1,16 @@
 package org.example.backendweride.platform.booking.interfaces.transform;
 
-import org.example.backendweride.platform.booking.interfaces.resources.CreateBookingResource;
 import org.example.backendweride.platform.booking.domain.model.commands.CreateBookingCommand;
+import org.example.backendweride.platform.booking.interfaces.resources.CreateBookingResource;
 
-/**
- * Assembler class to convert CreateBookingResource to CreateBookingCommand.
- *
- * @summary This class provides a method to transform a CreateBookingResource object
- *          into a CreateBookingCommand object for processing booking creation requests.
- */
 public class CreateBookingCommandFromResourceAssembler {
 
-    public static CreateBookingCommand toCommand(CreateBookingResource r) {
-        if (r == null) return null;
-
-        Integer ratingScore = null;
-        String ratingComment = null;
-
-        if (r.rating() != null) {
-            ratingScore = r.rating().score();
-            ratingComment = r.rating().comment();
-        }
-
+    public static CreateBookingCommand toCommandFromResource(CreateBookingResource resource) {
         return new CreateBookingCommand(
-            r.userId(),
-            r.vehicleId(),
-            r.startLocationId(),
-            r.endLocationId(),
-            r.reservedAt(),
-            r.startDate(),
-            r.endDate(),
-            r.actualStartDate(),
-            r.actualEndDate(),
-            r.status(),
-            r.totalCost(),
-            r.discount(),
-            r.finalCost(),
-            r.paymentMethod(),
-            r.paymentStatus(),
-            r.distance(),
-            r.duration(),
-            r.averageSpeed(),
-            ratingScore,
-            ratingComment
+                resource.userId(),
+                resource.vehicleId(),
+                resource.startLocationId(),
+                resource.endLocationId()
         );
     }
 }

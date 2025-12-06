@@ -11,6 +11,7 @@ import org.example.backendweride.platform.notifications.interfaces.transform.Not
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.example.backendweride.platform.notifications.domain.model.commands.MarkNotificationAsReadCommand;
 
@@ -22,6 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RestController
 @RequestMapping(value = "/api/v1/notifications", produces = APPLICATION_JSON_VALUE)
 @Tag(name = "Notifications", description = "Notification Management Endpoints")
+@CrossOrigin(origins = "http://localhost:4200") // <--- Aseguramos CORS aquí también
 public class NotificationsController {
 
     private final NotificationCommandService notificationCommandService;
@@ -35,32 +37,37 @@ public class NotificationsController {
     @PostMapping
     public ResponseEntity<NotificationResource> createNotification(@RequestBody CreateNotificationResource resource) {
         var command = CreateNotificationCommandFromResourceAssembler.toCommandFromResource(resource);
-
-        // CORRECCIÓN: Llamamos al servicio sin guardar el resultado en una variable
         notificationCommandService.handle(command);
-
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     /**
-     * Obtener notificaciones por Usuario.
-     * Uso: GET /api/v1/notifications?userId=1
+     * Obtener notificaciones por Usuario (Extraído del Token).
+     * Uso: GET /api/v1/notifications (Header Authorization: Bearer ...)
      */
     @GetMapping
-    public ResponseEntity<List<NotificationResource>> getAllNotificationsByUserId(@RequestParam String userId) {
+    public ResponseEntity<List<NotificationResource>> getAllNotificationsByUserId(Authentication authentication) {
+
+        // 1. Validación de Seguridad
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // 2. Extraemos el ID del token (¡Adiós @RequestParam!)
+        String userId = authentication.getName();
+        System.out.println("Buscando notificaciones para el usuario (Token): " + userId);
+
+        // 3. Ejecutamos la lógica normal usando ese ID seguro
         var query = new GetAllNotificationsByUserIdQuery(userId);
         var notifications = notificationQueryService.handle(query);
 
         var resources = notifications.stream()
                 .map(NotificationResourceFromEntityAssembler::toResourceFromEntity)
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(resources);
     }
 
-    /**
-     * Obtener notificación por ID público.
-     * Uso: GET /api/v1/notifications/notif-001
-     */
     @GetMapping("/{notificationId}")
     public ResponseEntity<NotificationResource> getNotificationById(@PathVariable String notificationId) {
         var query = new GetNotificationByIdQuery(notificationId);
