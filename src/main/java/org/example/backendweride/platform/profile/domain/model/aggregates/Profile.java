@@ -12,7 +12,7 @@ import java.time.LocalDate;
 public class Profile {
 
     private Long id;
-    private final Long accountId;
+    private final Long userId;
     private String name;
     private String phone;
     private String profilePicture;
@@ -23,7 +23,7 @@ public class Profile {
     private final Statistics statistics;
 
     public Profile(CreateProfileCommand command) {
-        this.accountId = command.accountId();
+        this.userId = command.userId();
         this.name = "";
         this.phone = "";
         this.profilePicture = "";
@@ -34,9 +34,9 @@ public class Profile {
         this.statistics = Statistics.defaultStatistics();
     }
 
-    public Profile(Long id, Long accountId, String name, String phone, String profilePicture, LocalDate dateOfBirth, String address, String emergencyContact, Preferences preferences, Statistics statistics) {
+    public Profile(Long id, Long userId, String name, String phone, String profilePicture, LocalDate dateOfBirth, String address, String emergencyContact, Preferences preferences, Statistics statistics) {
         this.id = id;
-        this.accountId = accountId;
+        this.userId = userId;
         this.name = name;
         this.phone = phone;
         this.profilePicture = profilePicture;

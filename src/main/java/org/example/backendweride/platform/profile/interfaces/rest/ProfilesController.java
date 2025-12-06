@@ -4,11 +4,11 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.backendweride.platform.profile.domain.model.queries.GetProfileByAccountIdQuery;
+import org.example.backendweride.platform.profile.domain.model.queries.GetProfileByUserIdQuery;
 import org.example.backendweride.platform.profile.domain.services.ProfileCommandService;
 import org.example.backendweride.platform.profile.domain.services.ProfileQueryService;
 import org.example.backendweride.platform.profile.interfaces.rest.resources.ProfileResource;
-import org.example.backendweride.platform.profile.interfaces.rest.resources.UpdateProfileResource;
+import org.example.backendweride.platform.profile.interfaces.rest.resources.UpdateUserResource;
 import org.example.backendweride.platform.profile.interfaces.rest.transform.ProfileResourceFromAggregateAssembler;
 import org.example.backendweride.platform.profile.interfaces.rest.transform.UpdateProfileCommandFromResourceAssembler;
 import org.springframework.http.ResponseEntity;
@@ -36,17 +36,18 @@ public class ProfilesController {
 
     /**
      * Get profile by Account ID.
-     * @param accountId The ID of the account associated with the profile.
-     * @return ResponseEntity containing the profile resource or a not found status.
+     *
+     * @param userId The ID of the account associated with the profile.
+     * @return ResponseEntity containing the user resource or a not found status.
      */
-    @GetMapping("by-account-id/{accountId}")
-    @Operation (summary = "Get profile by Account ID", description = "Retrieve user profile details using the associated account ID.")
+    @GetMapping("/{userId}")
+    @Operation(summary = "Get profile by User ID", description = "Retrieve user profile details using the associated account ID.")
     @ApiResponses(value = {
-            @ApiResponse (responseCode = "200", description = "Profile found"),
-            @ApiResponse (responseCode = "404", description = "Profile not found")
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<ProfileResource> getProfileByAccountId(@PathVariable Long accountId) {
-        var query = new GetProfileByAccountIdQuery(accountId);
+    public ResponseEntity<ProfileResource> getProfileByAccountId(@PathVariable Long userId) {
+        var query = new GetProfileByUserIdQuery(userId);
         var profile = profileQueryService.handle(query);
         if (profile.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -56,19 +57,20 @@ public class ProfilesController {
     }
 
     /**
-     * Update profile by Profile ID.
-     * @param profileId The ID of the profile to update.
-     * @param resource The updated profile details.
-     * @return ResponseEntity containing the updated profile resource or a not found status.
+     * Update profile by User ID.
+     *
+     * @param userId   The ID of the user whose user to update.
+     * @param resource The updated user details.
+     * @return ResponseEntity containing the updated user resource or a not found status.
      */
-    @PutMapping("/{profileId}")
-    @Operation(summary = "Update profile by Profile ID", description = "Update user profile details using the profile ID.")
+    @PutMapping("/{userId}")
+    @Operation(summary = "Update profile by User ID", description = "Update user profile details using the user ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Profile updated successfully"),
-            @ApiResponse(responseCode = "404", description = "Profile not found")
+            @ApiResponse(responseCode = "200", description = "User updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<ProfileResource> updateProfile(@PathVariable Long profileId, @RequestBody UpdateProfileResource resource) {
-        var command = UpdateProfileCommandFromResourceAssembler.toCommand(profileId, resource);
+    public ResponseEntity<ProfileResource> updateProfile(@PathVariable Long userId, @RequestBody UpdateUserResource resource) {
+        var command = UpdateProfileCommandFromResourceAssembler.toCommand(userId, resource);
         var profile = profileCommandService.handle(command);
         if (profile.isEmpty()) {
             return ResponseEntity.notFound().build();
