@@ -6,52 +6,70 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.backendweride.platform.garage.domain.model.commands.CreateVehicleCommand;
 import org.example.backendweride.platform.garage.domain.model.commands.UpdateVehicleCommand;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "vehicles")
 public class Vehicle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter
     private Long id;
 
+    @Getter
     private String brand;
+    @Getter
     private String model;
+    @Getter
     private Integer year;
+    @Getter
     private Integer battery;
+    @Getter
     private Integer maxSpeed;
-
+    @Getter
     @Column(name = "vehicle_range")
     private Integer range;
-
-    private Double weight;
+    @Getter
+    private double weight;
+    @Getter
     private String color;
+    @Getter
     private String licensePlate;
+    @Getter
     private String location;
+    @Getter
     private String status;
+    @Getter
     private String type;
+    @Getter
     private String companyId;
-    private Double pricePerMinute;
-
+    @Getter
+    private double pricePerMinute;
     @Column(length = 500)
+    @Getter
     private String image;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "vehicle_features", joinColumns = @JoinColumn(name = "vehicle_id"))
-    @Column(name = "feature")
-    private List<String> features;
+    @Getter
+    private List<String> features = new ArrayList<>();
 
+    @Getter
     private String maintenanceStatus;
+    @Getter
     private Date lastMaintenance;
+    @Getter
     private Date nextMaintenance;
-    private Double totalKilometers;
-    private Double rating;
+    @Getter
+    private double totalKilometers;
+    @Getter
+    private double rating;
+
+    protected Vehicle() {}
 
     public Vehicle(CreateVehicleCommand command) {
         this.brand = command.brand();
