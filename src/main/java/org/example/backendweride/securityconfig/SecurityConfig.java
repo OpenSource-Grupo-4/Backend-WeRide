@@ -29,13 +29,19 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of("*"));  // permite todos los frontends
+        // Aquí debes poner tus dominios REALES
+        config.setAllowedOrigins(List.of(
+                "https://weride.duckdns.org",          // backend por dominio
+                "https://frontend-we-ride-lake.vercel.app/"       // frontend desplegado
+        ));
+
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
+
         return source;
     }
 }

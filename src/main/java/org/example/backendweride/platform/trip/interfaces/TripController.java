@@ -1,5 +1,6 @@
 package org.example.backendweride.platform.trip.interfaces;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.backendweride.platform.trip.application.internal.commands.TripCommandServiceImpl;
 import org.example.backendweride.platform.trip.application.internal.queries.TripQueryServiceImpl;
 import org.example.backendweride.platform.trip.domain.aggregates.Trip;
@@ -20,6 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api/v1/trips", produces = APPLICATION_JSON_VALUE)
+@Tag(name = "Trips")
 public class TripController {
     private final TripCommandService tripCommandService;
     private final TripQueryService tripQueryService;

@@ -1,12 +1,12 @@
 package org.example.backendweride.platform.profile.interfaces.rest.transform;
 
 import org.example.backendweride.platform.profile.domain.model.commands.UpdateProfileCommand;
-import org.example.backendweride.platform.profile.interfaces.rest.resources.UpdateProfileResource;
+import org.example.backendweride.platform.profile.interfaces.rest.resources.UpdateUserResource;
 
 public class UpdateProfileCommandFromResourceAssembler {
-    public static UpdateProfileCommand toCommand(Long profileId, UpdateProfileResource resource) {
+    public static UpdateProfileCommand toCommand(Long userId, UpdateUserResource resource) {
         return new UpdateProfileCommand(
-                profileId,
+                userId,
                 resource.name(),
                 resource.phone(),
                 resource.profilePicture(),

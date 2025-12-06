@@ -7,7 +7,7 @@ public class ProfileResourceFromAggregateAssembler {
     public static ProfileResource toResource(Profile profile) {
         return new ProfileResource(
                 profile.getId(),
-                profile.getAccountId(),
+                profile.getUserId(),
                 profile.getName(),
                 profile.getPhone(),
                 profile.getProfilePicture(),
