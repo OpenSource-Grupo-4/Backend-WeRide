@@ -26,8 +26,8 @@ public class Profile {
 
     public Profile(CreateProfileCommand profileCommand) {
         this.userId = profileCommand.userId();
-        this.firstName = profileCommand.firstName();
-        this.lastName = profileCommand.lastName();
-        this.email = profileCommand.email();
+        this.firstName = "";
+        this.lastName = "";
+        this.email = "";
     }
 }

@@ -6,10 +6,7 @@ import org.example.backendweride.platform.profile.interfaces.resources.CreatePro
 public class CreateProfileCommandFromResourceAssembler {
     public static CreateProfileCommand toCommandFromResource(CreateProfileCommandResource resource) {
         return new CreateProfileCommand(
-                resource.userId(),
-                resource.firstName(),
-                resource.lastName(),
-                resource.email()
+                resource.userId()
         );
     }
 }

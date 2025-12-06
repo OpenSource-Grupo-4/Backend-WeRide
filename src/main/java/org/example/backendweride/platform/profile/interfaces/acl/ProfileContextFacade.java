@@ -1,7 +1,7 @@
 package org.example.backendweride.platform.profile.interfaces.acl;
 
 import org.example.backendweride.platform.profile.domain.model.commands.CreateProfileCommand;
-import org.example.backendweride.platform.profile.domain.services.ProfileCommandService;
+import org.example.backendweride.platform.profile.domain.services.commands.ProfileCommandService;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,6 +16,6 @@ public class ProfileContextFacade {
     public Long createProfileForAccount(Long accountId) {
         var command = new CreateProfileCommand(accountId);
         var profile = profileCommandService.handle(command);
-        return profile.getId();
+        return profile.get().getId();
     }
 }
