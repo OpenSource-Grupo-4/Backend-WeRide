@@ -25,17 +25,18 @@ public class SecurityConfig {
         return http.build();
     }
 
+    //CORS Config for allowing requests from frontend
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        // Aquí debes poner tus dominios REALES
         config.setAllowedOrigins(List.of(
-                "https://weride.duckdns.org",          // backend por dominio
-                "https://frontend-we-ride-lake.vercel.app/"       // frontend desplegado
+                "http://localhost:4200",
+                "https://frontend-we-ride.vercel.app",
+                "https://backend-weride.onrender.com"
         ));
 
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 
