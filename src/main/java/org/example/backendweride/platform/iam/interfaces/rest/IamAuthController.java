@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.example.backendweride.platform.iam.domain.services.AccountCommandService;
 import org.example.backendweride.platform.iam.interfaces.rest.resources.AccountResource;
 import org.example.backendweride.platform.iam.interfaces.rest.resources.AuthenticatedAccountResource;
@@ -71,7 +72,7 @@ public class IamAuthController {
             @ApiResponse(responseCode = "201", description = "Account created successfully"),
             @ApiResponse(responseCode = "400", description = "Account creation failed due to bad request")
     })
-    public ResponseEntity<AccountResource> signUp(@RequestBody SignUpResource signUpResource) {
+    public ResponseEntity<AccountResource> signUp(@Valid @RequestBody SignUpResource signUpResource) {
         var signUpCommand = SignUpCommandFromResourceAssembler.toCommandFromResource(signUpResource);
         var account = accountCommandService.handle(signUpCommand);
 

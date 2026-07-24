@@ -1,5 +1,6 @@
 package org.example.backendweride.platform.garage.interfaces.rest;
 
+import jakarta.validation.Valid;
 import org.example.backendweride.platform.garage.domain.model.commands.DeleteVehicleCommand; // IMPORTANTE: Nueva importación
 import org.example.backendweride.platform.garage.domain.model.queries.GetAllVehiclesQuery;
 import org.example.backendweride.platform.garage.domain.model.queries.GetVehicleByIdQuery;
@@ -32,7 +33,7 @@ public class VehiclesController {
 
     // 1. POST: Crear
     @PostMapping
-    public ResponseEntity<VehicleResource> createVehicle(@RequestBody CreateVehicleResource resource) {
+    public ResponseEntity<VehicleResource> createVehicle(@Valid @RequestBody CreateVehicleResource resource) {
         var command = CreateVehicleCommandFromResourceAssembler.toCommandFromResource(resource);
         var vehicleId = vehicleCommandService.handle(command);
 

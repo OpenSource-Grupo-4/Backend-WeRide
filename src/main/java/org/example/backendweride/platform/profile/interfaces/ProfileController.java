@@ -1,6 +1,7 @@
 package org.example.backendweride.platform.profile.interfaces;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
 import org.example.backendweride.platform.profile.domain.model.aggregates.Profile;
 import org.example.backendweride.platform.profile.domain.services.commands.ProfileCommandService;
@@ -31,7 +32,7 @@ public class ProfileController {
     }
 
     @PostMapping
-    public ResponseEntity<ProfileResource> createProfile(@RequestBody CreateProfileCommandResource profileResource) {
+    public ResponseEntity<ProfileResource> createProfile(@Valid @RequestBody CreateProfileCommandResource profileResource) {
         var result = this.profileCommandService.handle(CreateProfileCommandFromResourceAssembler.toCommandFromResource(profileResource));
 
         return result.map(response -> new ResponseEntity<>(
