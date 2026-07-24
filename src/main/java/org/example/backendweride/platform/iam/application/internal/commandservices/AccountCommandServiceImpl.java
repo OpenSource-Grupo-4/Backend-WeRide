@@ -56,6 +56,9 @@ public class AccountCommandServiceImpl implements AccountCommandService {
         var accountExists = accountRepository.existsByUserName(command.username());
         if(accountExists) {
             var account = accountRepository.findByUserName(command.username());
+            if (!hashingService.matches(command.password(), account.get().getPassword())) {
+                throw new RuntimeException("Invalid credentials");
+            }
             var token = tokenService.generateToken(account.get().getUserName());
             return Optional.of(ImmutablePair.of(account.get(), token));
         }
