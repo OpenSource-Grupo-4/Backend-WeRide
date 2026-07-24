@@ -3,7 +3,6 @@ package org.example.backendweride.platform.booking.application.commandservice;
 import org.example.backendweride.platform.booking.domain.model.aggregates.Booking;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
 import org.example.backendweride.platform.booking.domain.services.BookingDraftValidationService;
-import org.example.backendweride.platform.booking.domain.services.VehicleCatalogService;
 import org.example.backendweride.platform.booking.infraestructure.persistence.jpa.BookingRepository;
 import org.junit.jupiter.api.Test;
 
@@ -22,10 +21,9 @@ import static org.mockito.Mockito.when;
 class BookingDraftServiceImplTest {
 
     private final BookingRepository bookingRepository = mock(BookingRepository.class);
-    private final VehicleCatalogService vehicleCatalogService = mock(VehicleCatalogService.class);
     private final BookingDraftValidationService validationService = mock(BookingDraftValidationService.class);
     private final BookingDraftServiceImpl service =
-            new BookingDraftServiceImpl(bookingRepository, vehicleCatalogService, validationService);
+            new BookingDraftServiceImpl(bookingRepository, validationService);
 
     private SaveBookingDraftCommand draftCommand(LocalDateTime startDate) {
         return new SaveBookingDraftCommand(

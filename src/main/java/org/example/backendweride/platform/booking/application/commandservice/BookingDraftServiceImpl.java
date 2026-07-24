@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.example.backendweride.platform.booking.domain.services.BookingDraftService;
 import org.example.backendweride.platform.booking.domain.services.BookingCommandService;
-import org.example.backendweride.platform.booking.domain.services.VehicleCatalogService;
 import org.example.backendweride.platform.booking.domain.services.BookingDraftValidationService;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
 import org.example.backendweride.platform.booking.domain.model.commands.DeleteBookingDraftCommand;
@@ -18,22 +17,19 @@ import java.util.Optional;
 /**
  * Implementation of BookingDraftService to handle booking draft operations.
  *
- * @summary This service processes commands for saving, updating, and deleting booking drafts.
+ * @summary This service processes commands for saving and deleting booking drafts.
  */
 @Service
 public class BookingDraftServiceImpl implements BookingDraftService {
 
     private final BookingRepository bookingRepository;
-    private final VehicleCatalogService vehicleCatalogService;
     private final BookingDraftValidationService validationService;
 
     public BookingDraftServiceImpl(
         BookingRepository bookingRepository,
-        VehicleCatalogService vehicleCatalogService,
         BookingDraftValidationService validationService
     ) {
         this.bookingRepository = bookingRepository;
-        this.vehicleCatalogService = vehicleCatalogService;
         this.validationService = validationService;
     }
 
@@ -49,52 +45,6 @@ public class BookingDraftServiceImpl implements BookingDraftService {
         Booking saved = bookingRepository.save(booking);
 
         return new BookingCommandService.SaveDraftResult(saved.getBookingId(), true, "Draft saved successfully");
-    }
-
-    @Override
-    @Transactional
-    public BookingCommandService.SaveDraftResult updateDraft(SaveBookingDraftCommand command) {
-        if (command.userId() == null) {
-            return new BookingCommandService.SaveDraftResult(null, false, "User ID is required for update");
-        }
-
-        // Find draft by user and draft status
-        var drafts = bookingRepository.findByUserIdAndStatus(command.userId(), "draft",
-            org.springframework.data.domain.PageRequest.of(0, 1));
-
-        if (drafts.isEmpty()) {
-            return new BookingCommandService.SaveDraftResult(null, false, "Draft not found");
-        }
-
-        Booking existing = drafts.getContent().get(0);
-
-        // Update all booking fields
-        existing.setUserId(command.userId());
-        existing.setVehicleId(command.vehicleId());
-        existing.setStartLocationId(command.startLocationId());
-        existing.setEndLocationId(command.endLocationId());
-        existing.setReservedAt(command.reservedAt());
-        existing.setStartDate(command.startDate());
-        existing.setEndDate(command.endDate());
-        existing.setActualStartDate(command.actualStartDate());
-        existing.setActualEndDate(command.actualEndDate());
-        existing.setStatus(command.status());
-        existing.setTotalCost(command.totalCost());
-        existing.setDiscount(command.discount());
-        existing.setFinalCost(command.finalCost());
-        existing.setPaymentMethod(command.paymentMethod());
-        existing.setPaymentStatus(command.paymentStatus());
-        existing.setDistance(command.distance());
-        existing.setDuration(command.duration());
-        existing.setAverageSpeed(command.averageSpeed());
-
-        if (command.ratingScore() != null && command.ratingComment() != null) {
-            existing.setRating(command.ratingScore(), command.ratingComment());
-        }
-
-        Booking saved = bookingRepository.save(existing);
-
-        return new BookingCommandService.SaveDraftResult(saved.getBookingId(), true, "Draft updated successfully");
     }
 
     @Override

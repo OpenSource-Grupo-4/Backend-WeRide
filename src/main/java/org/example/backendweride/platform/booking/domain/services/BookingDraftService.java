@@ -13,8 +13,6 @@ public interface BookingDraftService {
 
     BookingCommandService.SaveDraftResult saveDraft(SaveBookingDraftCommand command);
 
-    BookingCommandService.SaveDraftResult updateDraft(SaveBookingDraftCommand command);
-
     BookingCommandService.SaveDraftResult deleteDraft(DeleteBookingDraftCommand command);
 
     Optional<SaveBookingDraftCommand> getDraftById(Long draftId);
