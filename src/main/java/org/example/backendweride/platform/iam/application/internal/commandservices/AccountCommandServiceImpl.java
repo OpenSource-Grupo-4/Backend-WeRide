@@ -11,6 +11,7 @@ import org.example.backendweride.platform.iam.domain.services.AccountCommandServ
 import org.example.backendweride.platform.iam.infrastructure.persistence.jpa.repositories.AccountRepository;
 import org.example.backendweride.platform.profile.interfaces.acl.ProfileContextFacade; // IMPORTANTE
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class AccountCommandServiceImpl implements AccountCommandService {
     }
 
     @Override
+    @Transactional
     public Optional<Account> handle(SignUpCommand command) {
         if(accountRepository.existsByUserName(command.username()))
             throw new RuntimeException("User already exists");
