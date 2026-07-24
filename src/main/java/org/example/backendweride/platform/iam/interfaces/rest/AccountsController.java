@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
 import org.example.backendweride.platform.iam.domain.model.queries.GetAccountByIdQuery;
 import org.example.backendweride.platform.iam.domain.services.AccountQueryService;
 import org.example.backendweride.platform.iam.interfaces.rest.resources.AccountResource;
@@ -26,8 +27,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Tag(name = "Accounts", description = "Manage User Accounts")
 public class AccountsController {
     private final AccountQueryService accountQueryService;
-    public AccountsController(AccountQueryService accountQueryService) {
+    private final AuthenticatedAccountProvider authenticatedAccountProvider;
+
+    public AccountsController(AccountQueryService accountQueryService, AuthenticatedAccountProvider authenticatedAccountProvider) {
         this.accountQueryService = accountQueryService;
+        this.authenticatedAccountProvider = authenticatedAccountProvider;
     }
 
     /**
@@ -42,6 +46,10 @@ public class AccountsController {
             @ApiResponse(responseCode = "404", description = "Account not found")
     })
     public ResponseEntity<AccountResource> getAccountById(@PathVariable Long accountId) {
+        if (!accountId.equals(authenticatedAccountProvider.getCurrentAccountId())) {
+            return ResponseEntity.notFound().build();
+        }
+
         var getAccountByIdQuery = new GetAccountByIdQuery(accountId);
         var account = accountQueryService.handle(getAccountByIdQuery);
         if(account.isEmpty()) return ResponseEntity.notFound().build();
