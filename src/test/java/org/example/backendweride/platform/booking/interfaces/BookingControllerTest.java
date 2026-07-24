@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -95,5 +96,71 @@ class BookingControllerTest {
         verify(draftService).deleteDraft(captor.capture());
         assertEquals(42L, captor.getValue().userId());
         assertEquals(555L, captor.getValue().draftId());
+    }
+
+    private static BookingResource bookingResource(Long id, Long userId) {
+        return new BookingResource(id, id, userId, 1L, 1L, 1L, null, null, null, null, null,
+                "confirmed", null, null, null, null, null, null, null, null, null, List.of());
+    }
+
+    @Test
+    void getBookingById_returnsNotFound_whenBookingBelongsToAnotherUser() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
+        when(bookingQueryService.getBookingById(any())).thenReturn(Optional.of(bookingResource(7L, 999L)));
+
+        var response = controller.getBookingById(7L);
+
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void getBookingById_returnsBooking_whenOwnedByCurrentUser() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
+        when(bookingQueryService.getBookingById(any())).thenReturn(Optional.of(bookingResource(7L, 42L)));
+
+        var response = controller.getBookingById(7L);
+
+        assertEquals(200, response.getStatusCode().value());
+    }
+
+    @Test
+    void searchBookings_alwaysScopesToAuthenticatedUser_ignoringVehicleAndDateParams() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
+        when(bookingQueryService.searchBookings(any(), any())).thenReturn(EMPTY_PAGE);
+
+        controller.searchBookings(999L, null, null, null, 0, 20);
+
+        ArgumentCaptor<org.example.backendweride.platform.booking.domain.model.queries.SearchBookingsQuery> captor =
+                ArgumentCaptor.forClass(org.example.backendweride.platform.booking.domain.model.queries.SearchBookingsQuery.class);
+        verify(bookingQueryService).searchBookings(captor.capture(), any(Pageable.class));
+        assertEquals(42L, captor.getValue().customerId());
+    }
+
+    @Test
+    void getBookingsByVehicle_scopesToAuthenticatedUser() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
+        when(bookingQueryService.getBookingsByVehicle(any(), any())).thenReturn(EMPTY_PAGE);
+
+        controller.getBookingsByVehicle(5L, 0, 20);
+
+        ArgumentCaptor<org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByVehicleQuery> captor =
+                ArgumentCaptor.forClass(org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByVehicleQuery.class);
+        verify(bookingQueryService).getBookingsByVehicle(captor.capture(), any(Pageable.class));
+        assertEquals(42L, captor.getValue().userId());
+        assertEquals(5L, captor.getValue().vehicleId());
+    }
+
+    @Test
+    void getBookingsByStatus_scopesToAuthenticatedUser() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
+        when(bookingQueryService.getBookingsByStatus(any(), any())).thenReturn(EMPTY_PAGE);
+
+        controller.getBookingsByStatus("confirmed", 0, 20);
+
+        ArgumentCaptor<org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByStatusQuery> captor =
+                ArgumentCaptor.forClass(org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByStatusQuery.class);
+        verify(bookingQueryService).getBookingsByStatus(captor.capture(), any(Pageable.class));
+        assertEquals(42L, captor.getValue().userId());
+        assertEquals("confirmed", captor.getValue().status());
     }
 }

@@ -120,7 +120,9 @@ public class BookingController {
     })
     public ResponseEntity<BookingResource> getBookingById(@PathVariable("id") Long id) {
         var opt = bookingQueryService.getBookingById(new GetBookingByIdQuery(id));
-        return opt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return opt.filter(booking -> booking.userId().equals(authenticatedAccountProvider.getCurrentAccountId()))
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
@@ -141,7 +143,6 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "Invalid search parameters")
     })
     public ResponseEntity<Page<BookingResource>> searchBookings(
-            @RequestParam(required = false) Long customerId,
             @RequestParam(required = false) Long vehicleId,
             @RequestParam(required = false) String status,
         @RequestParam(required = false) String startAtFrom,
@@ -158,7 +159,7 @@ public class BookingController {
             return ResponseEntity.badRequest().build();
         }
 
-        SearchBookingsQuery q = new SearchBookingsQuery(customerId, vehicleId, status, from, to, page, size);
+        SearchBookingsQuery q = new SearchBookingsQuery(authenticatedAccountProvider.getCurrentAccountId(), vehicleId, status, from, to, page, size);
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         var results = bookingQueryService.searchBookings(q, pageable);
         return ResponseEntity.ok(results);
@@ -206,7 +207,8 @@ public class BookingController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
-        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByVehicleQuery(vehicleId, page, size);
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByVehicleQuery(
+                authenticatedAccountProvider.getCurrentAccountId(), vehicleId, page, size);
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         var results = bookingQueryService.getBookingsByVehicle(q, pageable);
         return ResponseEntity.ok(results);
@@ -230,7 +232,8 @@ public class BookingController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
-        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByStatusQuery(status, page, size);
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByStatusQuery(
+                authenticatedAccountProvider.getCurrentAccountId(), status, page, size);
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         var results = bookingQueryService.getBookingsByStatus(q, pageable);
         return ResponseEntity.ok(results);
