@@ -24,8 +24,12 @@ public class PlanCommandServiceImpl implements PlanCommandService {
     }
 
     @Override
-    public void handle(Long id) {
+    public boolean handle(Long id) {
+        if (!this.planRepository.existsById(id)) {
+            return false;
+        }
         this.planRepository.deleteById(id);
+        return true;
     }
 
 }

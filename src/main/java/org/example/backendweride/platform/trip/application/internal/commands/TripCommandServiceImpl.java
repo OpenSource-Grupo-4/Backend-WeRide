@@ -24,9 +24,9 @@ public class TripCommandServiceImpl implements TripCommandService {
     }
 
     @Override
-    public void handle(Long id, String userId) {
-        tripRepository.findById(id)
-                .filter(trip -> userId.equals(trip.getUserId()))
-                .ifPresent(tripRepository::delete);
+    public boolean handle(Long id, String userId) {
+        var trip = tripRepository.findById(id).filter(t -> userId.equals(t.getUserId()));
+        trip.ifPresent(tripRepository::delete);
+        return trip.isPresent();
     }
 }

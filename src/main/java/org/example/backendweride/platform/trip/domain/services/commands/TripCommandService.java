@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface TripCommandService {
     Optional<Trip> handle(CreateTripCommand command);
-    void handle(Long id, String userId);
+    boolean handle(Long id, String userId);
 }

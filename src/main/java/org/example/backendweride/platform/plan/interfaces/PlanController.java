@@ -56,8 +56,10 @@ public class PlanController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlanById(@PathVariable Long id) {
-        this.planCommandService.handle(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        boolean deleted = this.planCommandService.handle(id);
+        return deleted
+                ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 }

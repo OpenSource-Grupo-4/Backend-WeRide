@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 class TripCommandServiceImplTest {
@@ -33,5 +35,29 @@ class TripCommandServiceImplTest {
         service.handle(7L, "42");
 
         verify(tripRepository).delete(owned);
+    }
+
+    @Test
+    void handle_returnsFalseWhenTripDoesNotBelongToUser() {
+        var trip = mock(Trip.class);
+        when(trip.getUserId()).thenReturn("other-user");
+        when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
+
+        boolean deleted = service.handle(1L, "current-user");
+
+        assertFalse(deleted);
+        verify(tripRepository, never()).delete(any());
+    }
+
+    @Test
+    void handle_returnsTrueWhenTripBelongsToUser() {
+        var trip = mock(Trip.class);
+        when(trip.getUserId()).thenReturn("current-user");
+        when(tripRepository.findById(1L)).thenReturn(Optional.of(trip));
+
+        boolean deleted = service.handle(1L, "current-user");
+
+        assertTrue(deleted);
+        verify(tripRepository).delete(trip);
     }
 }
