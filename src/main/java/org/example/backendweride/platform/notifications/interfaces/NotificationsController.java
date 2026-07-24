@@ -1,5 +1,6 @@
 package org.example.backendweride.platform.notifications.interfaces;
 
+import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
 import org.example.backendweride.platform.notifications.domain.model.queries.GetAllNotificationsByUserIdQuery;
 import org.example.backendweride.platform.notifications.domain.model.queries.GetNotificationByIdQuery;
 import org.example.backendweride.platform.notifications.domain.services.NotificationCommandService;
@@ -26,10 +27,12 @@ public class NotificationsController {
 
     private final NotificationCommandService notificationCommandService;
     private final NotificationQueryService notificationQueryService;
+    private final AuthenticatedAccountProvider authenticatedAccountProvider;
 
-    public NotificationsController(NotificationCommandService notificationCommandService, NotificationQueryService notificationQueryService) {
+    public NotificationsController(NotificationCommandService notificationCommandService, NotificationQueryService notificationQueryService, AuthenticatedAccountProvider authenticatedAccountProvider) {
         this.notificationCommandService = notificationCommandService;
         this.notificationQueryService = notificationQueryService;
+        this.authenticatedAccountProvider = authenticatedAccountProvider;
     }
 
     @PostMapping
@@ -48,7 +51,7 @@ public class NotificationsController {
      */
     @GetMapping
     public ResponseEntity<List<NotificationResource>> getAllNotificationsByUserId(@RequestParam String userId) {
-        var query = new GetAllNotificationsByUserIdQuery(userId);
+        var query = new GetAllNotificationsByUserIdQuery(String.valueOf(authenticatedAccountProvider.getCurrentAccountId()));
         var notifications = notificationQueryService.handle(query);
 
         var resources = notifications.stream()
