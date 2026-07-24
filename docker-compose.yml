@@ -25,6 +25,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db:3306/weride-db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: weride_user
       SPRING_DATASOURCE_PASSWORD: weride_pass
+      JWT_SECRET: BLLZTBmA51ZnZnZ9mwRcmvfZJIru3GL2GqxMcvEtZBtI1m+BkzKLv3dAhqG1XfCx
     ports:
       - "8080:8080"
     networks:
