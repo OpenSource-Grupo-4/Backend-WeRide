@@ -34,6 +34,7 @@ import org.example.backendweride.platform.booking.domain.model.commands.DeleteBo
 import org.example.backendweride.platform.booking.domain.model.queries.GetBookingByIdQuery;
 import org.example.backendweride.platform.booking.domain.model.queries.SearchBookingsQuery;
 import org.example.backendweride.platform.booking.domain.model.queries.GetBookingDraftsByCustomerQuery;
+import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
 
 import java.util.Optional;
 import java.time.LocalDate;
@@ -55,13 +56,16 @@ public class BookingController {
     private final BookingCommandService commandService;
     private final BookingQueryService bookingQueryService;
     private final BookingDraftService draftService;
+    private final AuthenticatedAccountProvider authenticatedAccountProvider;
 
     public BookingController(BookingCommandService commandService,
                            BookingQueryService bookingQueryService,
-                           BookingDraftService draftService) {
+                           BookingDraftService draftService,
+                           AuthenticatedAccountProvider authenticatedAccountProvider) {
         this.commandService = commandService;
         this.bookingQueryService = bookingQueryService;
         this.draftService = draftService;
+        this.authenticatedAccountProvider = authenticatedAccountProvider;
     }
 
     /**
@@ -181,7 +185,7 @@ public class BookingController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
-        GetBookingDraftsByCustomerQuery q = new GetBookingDraftsByCustomerQuery(customerId, page, size);
+        GetBookingDraftsByCustomerQuery q = new GetBookingDraftsByCustomerQuery(authenticatedAccountProvider.getCurrentAccountId(), page, size);
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         var results = bookingQueryService.getBookingDraftsByCustomer(q, pageable);
         return ResponseEntity.ok(results);
@@ -281,7 +285,7 @@ public class BookingController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
-        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByUserIdQuery(userId);
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByUserIdQuery(authenticatedAccountProvider.getCurrentAccountId());
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         var results = bookingQueryService.getBookingsByUserId(q, pageable);
         return ResponseEntity.ok(results);
@@ -305,7 +309,7 @@ public class BookingController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
-        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetPendingBookingsByUserQuery(userId);
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetPendingBookingsByUserQuery(authenticatedAccountProvider.getCurrentAccountId());
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         var results = bookingQueryService.getPendingBookingsByUser(q, pageable);
         return ResponseEntity.ok(results);
@@ -329,7 +333,7 @@ public class BookingController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {
-        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetCompletedBookingsByUserQuery(userId);
+        var q = new org.example.backendweride.platform.booking.domain.model.queries.GetCompletedBookingsByUserQuery(authenticatedAccountProvider.getCurrentAccountId());
         Pageable pageable = PageRequest.of(Math.max(0, page), Math.max(1, size));
         var results = bookingQueryService.getCompletedBookingsByUser(q, pageable);
         return ResponseEntity.ok(results);
