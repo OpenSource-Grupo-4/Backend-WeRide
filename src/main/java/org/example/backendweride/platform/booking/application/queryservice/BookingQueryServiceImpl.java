@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 import org.example.backendweride.platform.booking.domain.services.BookingQueryService;
 import org.example.backendweride.platform.booking.infraestructure.persistence.jpa.BookingRepository;
@@ -106,11 +107,12 @@ public class BookingQueryServiceImpl implements BookingQueryService {
 
     @Override
     public Page<BookingResource> getPendingBookingsByUser(GetPendingBookingsByUserQuery q, Pageable pageable) {
-        // Get bookings with status 'pending' or 'confirmed'
-        var pendingPage = bookingRepository.findByUserIdAndStatus(q.userId(), "pending", pageable);
-        var confirmedPage = bookingRepository.findByUserIdAndStatus(q.userId(), "confirmed", pageable);
+        int halfSize = Math.max(1, pageable.getPageSize() / 2);
+        Pageable halfPageable = PageRequest.of(pageable.getPageNumber(), halfSize, pageable.getSort());
 
-        // Combine both results
+        var pendingPage = bookingRepository.findByUserIdAndStatus(q.userId(), "pending", halfPageable);
+        var confirmedPage = bookingRepository.findByUserIdAndStatus(q.userId(), "confirmed", halfPageable);
+
         var combined = new java.util.ArrayList<>(pendingPage.getContent());
         combined.addAll(confirmedPage.getContent());
 
