@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
         if (message.contains("invalid credentials")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+        throw ex;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

@@ -10,6 +10,7 @@ import org.springframework.core.MethodParameter;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class GlobalExceptionHandlerTest {
 
@@ -42,8 +43,8 @@ class GlobalExceptionHandlerTest {
 
     @Test
     void unrecognizedRuntimeExceptionFallsBackToInternalServerError() {
-        var response = handler.handleRuntimeException(new RuntimeException("Something unexpected"));
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        assertThrows(RuntimeException.class,
+                () -> handler.handleRuntimeException(new RuntimeException("Something unexpected")));
     }
 
     @Test

@@ -81,17 +81,17 @@ public class TravelHistoryController {
     /**
      * Get travel history records by user ID.
      *
-     * @param id The ID of the user.
+     * @param userId The ID of the user.
      * @return ResponseEntity containing the list of travel history records or an error status.
      */
-    @GetMapping("{id}")
+    @GetMapping("{userId}")
     @Operation(summary = "Get Travel History by User ID", description = "Retrieve travel history records for a specific user by their ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Travel history found"),
             @ApiResponse(responseCode = "404", description = "Travel history not found")
     })
-    public ResponseEntity<List<TravelHistoryResource>> getTravelHistoryById(@PathVariable Long id) {
-        var result = travelHistoryQueryService.handle(new GetTravelsHistoryById(id));
+    public ResponseEntity<List<TravelHistoryResource>> getTravelHistoryById(@PathVariable Long userId) {
+        var result = travelHistoryQueryService.handle(new GetTravelsHistoryById(userId));
         return result.map(response -> new ResponseEntity<>(response, HttpStatus.OK))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
