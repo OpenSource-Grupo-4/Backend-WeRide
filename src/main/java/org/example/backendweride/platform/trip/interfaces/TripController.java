@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
 import org.example.backendweride.platform.trip.application.internal.commands.TripCommandServiceImpl;
 import org.example.backendweride.platform.trip.application.internal.queries.TripQueryServiceImpl;
-import org.example.backendweride.platform.trip.domain.aggregates.Trip;
 import org.example.backendweride.platform.trip.domain.services.commands.TripCommandService;
 import org.example.backendweride.platform.trip.domain.services.queries.TripQueryService;
 import org.example.backendweride.platform.trip.interfaces.resources.CreateTripCommandResource;
@@ -46,7 +45,7 @@ public class TripController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Trip>> getAllTrips() {
+    public ResponseEntity<List<TripResource>> getAllTrips() {
         var result = this.tripQueryService.handle(String.valueOf(authenticatedAccountProvider.getCurrentAccountId()));
         return result.map(response ->
                 new ResponseEntity<>(response, HttpStatus.OK

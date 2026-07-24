@@ -1,12 +1,14 @@
 package org.example.backendweride.platform.trip.application.internal.queries;
 
-import org.example.backendweride.platform.trip.domain.aggregates.Trip;
 import org.example.backendweride.platform.trip.domain.services.queries.TripQueryService;
 import org.example.backendweride.platform.trip.infrastructure.persistence.jpa.TripRepository;
+import org.example.backendweride.platform.trip.interfaces.resources.TripResource;
+import org.example.backendweride.platform.trip.interfaces.transform.TripResourceFromEntityAssembler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TripQueryServiceImpl implements TripQueryService {
@@ -17,8 +19,10 @@ public class TripQueryServiceImpl implements TripQueryService {
     }
 
     @Override
-    public Optional<List<Trip>> handle(String userId) {
-        var trips = this.tripRepository.findByUserId(userId);
+    public Optional<List<TripResource>> handle(String userId) {
+        var trips = tripRepository.findByUserId(userId).stream()
+                .map(TripResourceFromEntityAssembler::toResource)
+                .collect(Collectors.toList());
         return Optional.of(trips);
     }
 }

@@ -1,7 +1,6 @@
 package org.example.backendweride.platform.plan.interfaces;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.backendweride.platform.plan.domain.model.aggregates.Plan;
 import org.example.backendweride.platform.plan.domain.queries.GetPlanById;
 import org.example.backendweride.platform.plan.domain.services.commands.PlanCommandService;
 import org.example.backendweride.platform.plan.domain.services.queries.PlanQueryService;
@@ -48,7 +47,7 @@ public class PlanController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Plan>> findAllPlans() {
+    public ResponseEntity<List<PlanResource>> findAllPlans() {
         var result = this.planQueryService.handle();
         return result.map(response -> new ResponseEntity<>(
                 response, HttpStatus.OK

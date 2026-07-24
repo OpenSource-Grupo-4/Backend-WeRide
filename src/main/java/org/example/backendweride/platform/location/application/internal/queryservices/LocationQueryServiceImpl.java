@@ -1,12 +1,14 @@
 package org.example.backendweride.platform.location.application.internal.queryservices;
 
-import org.example.backendweride.platform.location.domain.model.aggregates.Location;
 import org.example.backendweride.platform.location.domain.services.queryservices.LocationQueryService;
 import org.example.backendweride.platform.location.infrastructure.persistence.jpa.LocationRepository;
+import org.example.backendweride.platform.location.interfaces.resources.LocationResource;
+import org.example.backendweride.platform.location.interfaces.transform.LocationResourceFromEntityAssembler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LocationQueryServiceImpl implements LocationQueryService {
@@ -18,8 +20,10 @@ public class LocationQueryServiceImpl implements LocationQueryService {
     }
 
     @Override
-    public Optional<List<Location>> handle() {
-        List<Location> locations = this.locationRepository.findAll();
+    public Optional<List<LocationResource>> handle() {
+        var locations = this.locationRepository.findAll().stream()
+                .map(LocationResourceFromEntityAssembler::toResourceFromEntity)
+                .collect(Collectors.toList());
         return Optional.of(locations);
     }
 }

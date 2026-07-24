@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.backendweride.platform.location.domain.model.aggregates.Location;
 import org.example.backendweride.platform.location.domain.services.commandservices.LocationCommandService;
 import org.example.backendweride.platform.location.domain.services.queryservices.LocationQueryService;
 import org.example.backendweride.platform.location.interfaces.resources.CreateLocationResource;
@@ -54,7 +53,7 @@ public class LocationController {
             @ApiResponse(responseCode = "204", description = "No Content - no hay locations"),
             @ApiResponse(responseCode = "404", description = "Not Found - error de consulta")
     })
-    public ResponseEntity<List<Location>> getAllLocation() {
+    public ResponseEntity<List<LocationResource>> getAllLocation() {
         var result = this.locationQueryService.handle();
         return result.map(response ->
                 new ResponseEntity<>(response, HttpStatus.OK

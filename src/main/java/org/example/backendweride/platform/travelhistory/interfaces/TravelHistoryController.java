@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.backendweride.platform.travelhistory.domain.model.aggregates.TravelHistory;
 import org.example.backendweride.platform.travelhistory.domain.model.queries.GetTravelsHistoryById;
 import org.example.backendweride.platform.travelhistory.domain.services.commandservices.TravelHistoryCommandService;
 import org.example.backendweride.platform.travelhistory.domain.services.queryservices.TravelHistoryQueryService;
@@ -73,7 +72,7 @@ public class TravelHistoryController {
             @ApiResponse(responseCode = "201", description = "Travel histories found"),
             @ApiResponse(responseCode = "404", description = "No travel histories found")
     })
-    public ResponseEntity<List<TravelHistory>> getAllTravelHistories() {
+    public ResponseEntity<List<TravelHistoryResource>> getAllTravelHistories() {
         var result = travelHistoryQueryService.handle(new org.example.backendweride.platform.travelhistory.domain.model.queries.GetAllTravelsHistory());
         return result.map(response -> new ResponseEntity<>(response, HttpStatus.OK))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
@@ -82,17 +81,17 @@ public class TravelHistoryController {
     /**
      * Get travel history records by user ID.
      *
-     * @param userId The ID of the user.
+     * @param id The ID of the user.
      * @return ResponseEntity containing the list of travel history records or an error status.
      */
-    @GetMapping("{userId}")
+    @GetMapping("{id}")
     @Operation(summary = "Get Travel History by User ID", description = "Retrieve travel history records for a specific user by their ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Travel history found"),
             @ApiResponse(responseCode = "404", description = "Travel history not found")
     })
-    public ResponseEntity<List<TravelHistory>> getTravelHistoryById(@PathVariable Long userId) {
-        var result = travelHistoryQueryService.handle(new GetTravelsHistoryById(userId));
+    public ResponseEntity<List<TravelHistoryResource>> getTravelHistoryById(@PathVariable Long id) {
+        var result = travelHistoryQueryService.handle(new GetTravelsHistoryById(id));
         return result.map(response -> new ResponseEntity<>(response, HttpStatus.OK))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }

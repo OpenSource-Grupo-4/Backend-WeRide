@@ -4,10 +4,13 @@ import org.example.backendweride.platform.plan.domain.model.aggregates.Plan;
 import org.example.backendweride.platform.plan.domain.queries.GetPlanById;
 import org.example.backendweride.platform.plan.domain.services.queries.PlanQueryService;
 import org.example.backendweride.platform.plan.infrastructure.persistence.jpa.PlanRepository;
+import org.example.backendweride.platform.plan.interfaces.resources.PlanResource;
+import org.example.backendweride.platform.plan.interfaces.transform.PlanResourceFromEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PlanQueryServiceImpl implements PlanQueryService {
@@ -22,8 +25,10 @@ public class PlanQueryServiceImpl implements PlanQueryService {
     }
 
     @Override
-    public Optional<List<Plan>> handle() {
-        var result = this.planRepository.findAll();
+    public Optional<List<PlanResource>> handle() {
+        var result = this.planRepository.findAll().stream()
+                .map(PlanResourceFromEntity::toPlanResource)
+                .collect(Collectors.toList());
         return Optional.of(result);
     }
 }

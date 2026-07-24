@@ -1,14 +1,16 @@
 package org.example.backendweride.platform.travelhistory.application.internal.queryservices;
 
-import org.example.backendweride.platform.travelhistory.domain.model.aggregates.TravelHistory;
 import org.example.backendweride.platform.travelhistory.domain.model.queries.GetAllTravelsHistory;
 import org.example.backendweride.platform.travelhistory.domain.model.queries.GetTravelsHistoryById;
 import org.example.backendweride.platform.travelhistory.domain.services.queryservices.TravelHistoryQueryService;
 import org.example.backendweride.platform.travelhistory.infrastructure.persistence.jpa.TravelHistoryRepository;
+import org.example.backendweride.platform.travelhistory.interfaces.resources.TravelHistoryResource;
+import org.example.backendweride.platform.travelhistory.interfaces.transform.TravelHistoryResourceFromEntityAssembler;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * TravelHistoryQueryServiceImpl implements the TravelHistoryQueryService interface
@@ -26,14 +28,18 @@ public class TravelHistoryQueryServiceImpl implements TravelHistoryQueryService 
     }
 
     @Override
-    public Optional<List<TravelHistory>> handle(GetTravelsHistoryById query) {
-        var listTravelHistory = travelHistoryRepository.findByUserId(query.id());
+    public Optional<List<TravelHistoryResource>> handle(GetTravelsHistoryById query) {
+        var listTravelHistory = travelHistoryRepository.findByUserId(query.id()).stream()
+                .map(TravelHistoryResourceFromEntityAssembler::toTravelHistoryFromEntity)
+                .collect(Collectors.toList());
         return Optional.of(listTravelHistory);
     }
 
     @Override
-    public Optional<List<TravelHistory>> handle(GetAllTravelsHistory query) {
-        List<TravelHistory> travelHistories = travelHistoryRepository.findAll();
+    public Optional<List<TravelHistoryResource>> handle(GetAllTravelsHistory query) {
+        var travelHistories = travelHistoryRepository.findAll().stream()
+                .map(TravelHistoryResourceFromEntityAssembler::toTravelHistoryFromEntity)
+                .collect(Collectors.toList());
         return Optional.of(travelHistories);
     }
 }

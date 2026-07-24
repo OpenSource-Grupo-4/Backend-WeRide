@@ -5,6 +5,7 @@ import org.example.backendweride.platform.trip.application.internal.commands.Tri
 import org.example.backendweride.platform.trip.domain.services.queries.TripQueryService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,16 @@ class TripControllerTest {
         controller.getAllTrips();
 
         verify(tripQueryService).handle("42");
+    }
+
+    @Test
+    void getAllTrips_returnsTripResourceNotEntity() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(1L);
+        when(tripQueryService.handle("1")).thenReturn(Optional.of(List.of()));
+
+        var response = controller.getAllTrips();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test

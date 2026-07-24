@@ -3,7 +3,6 @@ package org.example.backendweride.platform.profile.interfaces;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
-import org.example.backendweride.platform.profile.domain.model.aggregates.Profile;
 import org.example.backendweride.platform.profile.domain.services.commands.ProfileCommandService;
 import org.example.backendweride.platform.profile.domain.services.queries.ProfileQueryService;
 import org.example.backendweride.platform.profile.interfaces.resources.CreateProfileCommandResource;
@@ -41,10 +40,10 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Profile> getProfileById(@PathVariable Long id) {
+    public ResponseEntity<ProfileResource> getProfileById(@PathVariable Long id) {
         var result = this.profileQueryService.handle(id);
         return result.filter(profile -> authenticatedAccountProvider.getCurrentAccountId().equals(profile.getUserId()))
-                .map(ResponseEntity::ok)
+                .map(profile -> ResponseEntity.ok(ProfileResourceFromEntity.tpProfileResourceFromEntity(profile)))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
