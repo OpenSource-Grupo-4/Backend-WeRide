@@ -56,6 +56,9 @@ public class Vehicle {
     @Getter
     private String image;
 
+    @ElementCollection
+    @CollectionTable(name = "vehicle_features", joinColumns = @JoinColumn(name = "vehicle_id"))
+    @Column(name = "feature")
     @Getter
     private List<String> features = new ArrayList<>();
 

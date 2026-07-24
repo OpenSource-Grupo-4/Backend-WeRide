@@ -40,6 +40,9 @@ public class Location {
     @Embedded
     @Getter
     private OperatingHours operatingHours;
+    @ElementCollection
+    @CollectionTable(name = "location_amenities", joinColumns = @JoinColumn(name = "location_id"))
+    @Column(name = "amenity")
     @Getter
     private List<String> amenities = new ArrayList<>();
     @Getter

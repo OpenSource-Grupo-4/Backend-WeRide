@@ -38,6 +38,9 @@ public class Plan {
     int freeMinutesPerMonth;
     @Getter
     int discountPercentage;
+    @ElementCollection
+    @CollectionTable(name = "plan_benefits", joinColumns = @JoinColumn(name = "plan_id"))
+    @Column(name = "benefit")
     @Getter
     List<String> benefits = new ArrayList<>();
     @Getter

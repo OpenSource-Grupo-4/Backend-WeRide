@@ -62,8 +62,14 @@ public class Trip {
     private int temperature;
     @Getter
     private String status;
+    @ElementCollection
+    @CollectionTable(name = "trip_incident_reports", joinColumns = @JoinColumn(name = "trip_id"))
+    @Column(name = "incident_report")
     @Getter
     private List<String> incidentReports = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "trip_photos", joinColumns = @JoinColumn(name = "trip_id"))
+    @Column(name = "photo")
     @Getter
     private List<String> photos = new ArrayList<>();
 
