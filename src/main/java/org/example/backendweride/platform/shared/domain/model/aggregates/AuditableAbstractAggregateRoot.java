@@ -7,6 +7,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * Auditable Abstract Aggregate Root
@@ -28,5 +29,18 @@ public abstract class AuditableAbstractAggregateRoot<T> {
     @LastModifiedDate
     @Column(nullable = false)
     private Date updatedAt;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AuditableAbstractAggregateRoot<?> other = (AuditableAbstractAggregateRoot<?>) o;
+        return id != null && Objects.equals(id, other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
 

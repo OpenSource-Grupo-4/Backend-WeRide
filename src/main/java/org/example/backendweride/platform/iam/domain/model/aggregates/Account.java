@@ -9,6 +9,8 @@ import org.example.backendweride.platform.iam.domain.model.valueobjects.ProfileI
 import org.springframework.data.domain.AbstractAggregateRoot;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.Objects;
+
 /**
  * Account Aggregate Root
  *
@@ -111,4 +113,16 @@ public class Account extends AbstractAggregateRoot<Account> {
         return this;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Account other = (Account) o;
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

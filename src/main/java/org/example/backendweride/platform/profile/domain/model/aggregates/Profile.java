@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.example.backendweride.platform.profile.domain.model.commands.CreateProfileCommand;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.util.Objects;
+
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 public class Profile {
@@ -29,5 +31,18 @@ public class Profile {
         this.firstName = "";
         this.lastName = "";
         this.email = "";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Profile other = (Profile) o;
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }
