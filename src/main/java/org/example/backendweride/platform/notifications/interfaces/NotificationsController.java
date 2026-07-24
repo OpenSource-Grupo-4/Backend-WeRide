@@ -69,13 +69,15 @@ public class NotificationsController {
         var query = new GetNotificationByIdQuery(notificationId);
         var notification = notificationQueryService.handle(query);
 
-        return notification.map(entity -> ResponseEntity.ok(NotificationResourceFromEntityAssembler.toResourceFromEntity(entity)))
+        return notification
+                .filter(entity -> entity.getUserId().equals(String.valueOf(authenticatedAccountProvider.getCurrentAccountId())))
+                .map(entity -> ResponseEntity.ok(NotificationResourceFromEntityAssembler.toResourceFromEntity(entity)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PatchMapping("/{notificationId}/read")
     public ResponseEntity<String> markAsRead(@PathVariable String notificationId) {
-        var command = new MarkNotificationAsReadCommand(notificationId);
+        var command = new MarkNotificationAsReadCommand(notificationId, String.valueOf(authenticatedAccountProvider.getCurrentAccountId()));
         notificationCommandService.handle(command);
         return ResponseEntity.ok("Notification marked as read");
     }

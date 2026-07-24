@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 class NotificationsControllerTest {
 
@@ -34,5 +35,31 @@ class NotificationsControllerTest {
         ArgumentCaptor<GetAllNotificationsByUserIdQuery> captor = ArgumentCaptor.forClass(GetAllNotificationsByUserIdQuery.class);
         verify(notificationQueryService).handle(captor.capture());
         assertEquals("42", captor.getValue().userId());
+    }
+
+    @Test
+    void getNotificationById_returnsNotFound_whenNotificationBelongsToAnotherUser() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
+        var foreignNotification = mock(org.example.backendweride.platform.notifications.domain.model.aggregates.Notification.class);
+        when(foreignNotification.getUserId()).thenReturn("999");
+        when(notificationQueryService.handle(any(org.example.backendweride.platform.notifications.domain.model.queries.GetNotificationByIdQuery.class)))
+                .thenReturn(java.util.Optional.of(foreignNotification));
+
+        var response = controller.getNotificationById("notif-001");
+
+        assertEquals(404, response.getStatusCode().value());
+    }
+
+    @Test
+    void markAsRead_passesAuthenticatedUserId() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
+
+        controller.markAsRead("notif-001");
+
+        ArgumentCaptor<org.example.backendweride.platform.notifications.domain.model.commands.MarkNotificationAsReadCommand> captor =
+                ArgumentCaptor.forClass(org.example.backendweride.platform.notifications.domain.model.commands.MarkNotificationAsReadCommand.class);
+        verify(notificationCommandService).handle(captor.capture());
+        assertEquals("42", captor.getValue().userId());
+        assertEquals("notif-001", captor.getValue().notificationId());
     }
 }

@@ -27,6 +27,7 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
     @Override
     public void handle(MarkNotificationAsReadCommand command) {
         notificationRepository.findByPublicId(command.notificationId())
+                .filter(notification -> notification.getUserId().equals(command.userId()))
                 .map(notification -> {
                     notification.markAsRead();
                     notificationRepository.save(notification);
