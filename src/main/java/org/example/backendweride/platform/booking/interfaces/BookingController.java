@@ -17,9 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 import org.example.backendweride.platform.booking.interfaces.resources.CreateBookingResource;
 import org.example.backendweride.platform.booking.interfaces.resources.SaveBookingDraftResource;
 import org.example.backendweride.platform.booking.interfaces.resources.BookingResource;
@@ -252,12 +249,7 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "Invalid request")
     })
     public ResponseEntity<String> deleteDraft(@PathVariable Long draftId) {
-        // Get authenticated user ID
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userIdStr = authentication.getName();
-        Long userId = Long.parseLong(userIdStr);
-
-        DeleteBookingDraftCommand cmd = new DeleteBookingDraftCommand(draftId, userId);
+        DeleteBookingDraftCommand cmd = new DeleteBookingDraftCommand(draftId, authenticatedAccountProvider.getCurrentAccountId());
         var result = draftService.deleteDraft(cmd);
 
         if (!result.success()) {

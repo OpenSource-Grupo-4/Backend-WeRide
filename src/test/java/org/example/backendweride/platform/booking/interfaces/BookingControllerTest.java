@@ -1,5 +1,6 @@
 package org.example.backendweride.platform.booking.interfaces;
 
+import org.example.backendweride.platform.booking.domain.model.commands.DeleteBookingDraftCommand;
 import org.example.backendweride.platform.booking.domain.model.queries.GetBookingDraftsByCustomerQuery;
 import org.example.backendweride.platform.booking.domain.model.queries.GetBookingsByUserIdQuery;
 import org.example.backendweride.platform.booking.domain.model.queries.GetCompletedBookingsByUserQuery;
@@ -81,5 +82,18 @@ class BookingControllerTest {
         ArgumentCaptor<GetBookingDraftsByCustomerQuery> captor = ArgumentCaptor.forClass(GetBookingDraftsByCustomerQuery.class);
         verify(bookingQueryService).getBookingDraftsByCustomer(captor.capture(), any(Pageable.class));
         assertEquals(42L, captor.getValue().customerId());
+    }
+
+    @Test
+    void deleteDraft_usesAuthenticatedUserId_notParsedFromUsername() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
+        when(draftService.deleteDraft(any())).thenReturn(new BookingCommandService.SaveDraftResult(555L, true, "Draft deleted successfully"));
+
+        controller.deleteDraft(555L);
+
+        ArgumentCaptor<DeleteBookingDraftCommand> captor = ArgumentCaptor.forClass(DeleteBookingDraftCommand.class);
+        verify(draftService).deleteDraft(captor.capture());
+        assertEquals(42L, captor.getValue().userId());
+        assertEquals(555L, captor.getValue().draftId());
     }
 }
