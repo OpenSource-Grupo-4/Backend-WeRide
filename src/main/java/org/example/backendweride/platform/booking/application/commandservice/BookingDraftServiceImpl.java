@@ -40,6 +40,11 @@ public class BookingDraftServiceImpl implements BookingDraftService {
     @Override
     @Transactional
     public BookingCommandService.SaveDraftResult saveDraft(SaveBookingDraftCommand command) {
+        var validation = validationService.validateForSave(command);
+        if (!validation.valid()) {
+            return new BookingCommandService.SaveDraftResult(null, false, validation.message());
+        }
+
         Booking booking = Booking.createDraftFrom(command);
         Booking saved = bookingRepository.save(booking);
 
