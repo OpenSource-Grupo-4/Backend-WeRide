@@ -38,7 +38,9 @@ public class TripController {
 
     @PostMapping
     public ResponseEntity<TripResource> createTrip(@RequestBody CreateTripCommandResource createTripCommandResource) {
-        var result = this.tripCommandService.handle(CreateTripCommandFromResourceAssembler.toCommandFromResource(createTripCommandResource));
+        var userId = String.valueOf(authenticatedAccountProvider.getCurrentAccountId());
+        var result = this.tripCommandService.handle(
+                CreateTripCommandFromResourceAssembler.toCommandFromResource(createTripCommandResource, userId));
         return result.map(response -> new ResponseEntity<>(
                 TripResourceFromEntityAssembler.toResource(response), HttpStatus.CREATED
                 )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
