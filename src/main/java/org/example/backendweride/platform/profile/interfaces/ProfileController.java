@@ -32,7 +32,9 @@ public class ProfileController {
 
     @PostMapping
     public ResponseEntity<ProfileResource> createProfile(@Valid @RequestBody CreateProfileCommandResource profileResource) {
-        var result = this.profileCommandService.handle(CreateProfileCommandFromResourceAssembler.toCommandFromResource(profileResource));
+        var userId = authenticatedAccountProvider.getCurrentAccountId();
+        var result = this.profileCommandService.handle(
+                CreateProfileCommandFromResourceAssembler.toCommandFromResource(profileResource, userId));
 
         return result.map(response -> new ResponseEntity<>(
                 ProfileResourceFromEntity.tpProfileResourceFromEntity(response), CREATED
