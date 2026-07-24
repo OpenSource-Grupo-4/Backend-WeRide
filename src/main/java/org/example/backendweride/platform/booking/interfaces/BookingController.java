@@ -126,9 +126,8 @@ public class BookingController {
     }
 
     /**
-     * Search for bookings based on various criteria.
-     * @param customerId Filter by customer ID (optional).
-     * @param vehicleId Filter by vehicle ID (optional).
+     * Search bookings belonging to the authenticated user, optionally filtered by status.
+     * @param vehicleId Unused — bookings are always scoped to the authenticated user by status only.
      * @param status Filter by booking status (optional).
      * @param startAtFrom Filter bookings starting from this date (optional).
      * @param startAtTo Filter bookings up to this date (optional).
