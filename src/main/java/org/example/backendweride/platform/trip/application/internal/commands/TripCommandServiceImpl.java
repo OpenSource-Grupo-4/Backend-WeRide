@@ -26,7 +26,7 @@ public class TripCommandServiceImpl implements TripCommandService {
     @Override
     public void handle(Long id, String userId) {
         tripRepository.findById(id)
-                .filter(trip -> trip.getUserId().equals(userId))
+                .filter(trip -> userId.equals(trip.getUserId()))
                 .ifPresent(tripRepository::delete);
     }
 }

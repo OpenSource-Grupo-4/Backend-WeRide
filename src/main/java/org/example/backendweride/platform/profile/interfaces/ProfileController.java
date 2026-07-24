@@ -42,7 +42,7 @@ public class ProfileController {
     @GetMapping("/{id}")
     public ResponseEntity<Profile> getProfileById(@PathVariable Long id) {
         var result = this.profileQueryService.handle(id);
-        return result.filter(profile -> profile.getUserId().equals(authenticatedAccountProvider.getCurrentAccountId()))
+        return result.filter(profile -> authenticatedAccountProvider.getCurrentAccountId().equals(profile.getUserId()))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }

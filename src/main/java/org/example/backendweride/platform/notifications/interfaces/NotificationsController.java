@@ -70,7 +70,7 @@ public class NotificationsController {
         var notification = notificationQueryService.handle(query);
 
         return notification
-                .filter(entity -> entity.getUserId().equals(String.valueOf(authenticatedAccountProvider.getCurrentAccountId())))
+                .filter(entity -> String.valueOf(authenticatedAccountProvider.getCurrentAccountId()).equals(entity.getUserId()))
                 .map(entity -> ResponseEntity.ok(NotificationResourceFromEntityAssembler.toResourceFromEntity(entity)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

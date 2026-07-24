@@ -64,6 +64,18 @@ public class BookingQueryServiceImpl implements BookingQueryService {
             return new PageImpl<>(page.stream().map(BookingResourceFromEntityAssembler::toResource).collect(Collectors.toList()), pageable, page.getTotalElements());
         }
 
+        if (q.vehicleId() != null) {
+            var page = bookingRepository.findByUserIdAndVehicleId(q.customerId(), q.vehicleId(), pageable);
+            return new PageImpl<>(page.stream().map(BookingResourceFromEntityAssembler::toResource).collect(Collectors.toList()), pageable, page.getTotalElements());
+        }
+
+        if (q.startAtFrom() != null && q.startAtTo() != null) {
+            LocalDateTime from = q.startAtFrom().atStartOfDay();
+            LocalDateTime to = q.startAtTo().atTime(23, 59, 59);
+            var page = bookingRepository.findByUserIdAndStartDateBetween(q.customerId(), from, to, pageable);
+            return new PageImpl<>(page.stream().map(BookingResourceFromEntityAssembler::toResource).collect(Collectors.toList()), pageable, page.getTotalElements());
+        }
+
         var page = bookingRepository.findByUserId(q.customerId(), pageable);
         return new PageImpl<>(page.stream().map(BookingResourceFromEntityAssembler::toResource).collect(Collectors.toList()), pageable, page.getTotalElements());
     }

@@ -27,12 +27,13 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
     @Override
     public void handle(MarkNotificationAsReadCommand command) {
         notificationRepository.findByPublicId(command.notificationId())
-                .filter(notification -> notification.getUserId().equals(command.userId()))
+                .filter(notification -> command.userId().equals(notification.getUserId()))
                 .map(notification -> {
                     notification.markAsRead();
                     notificationRepository.save(notification);
                     return notification;
                 })
+                // ponytail: surfaces as 500 until P-10 adds a @RestControllerAdvice — deliberate, not a leak (same path for not-found and not-owned)
                 .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + command.notificationId()));
     }
 }

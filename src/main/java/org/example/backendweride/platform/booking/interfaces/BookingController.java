@@ -120,14 +120,16 @@ public class BookingController {
     })
     public ResponseEntity<BookingResource> getBookingById(@PathVariable("id") Long id) {
         var opt = bookingQueryService.getBookingById(new GetBookingByIdQuery(id));
-        return opt.filter(booking -> booking.userId().equals(authenticatedAccountProvider.getCurrentAccountId()))
+        return opt.filter(booking -> authenticatedAccountProvider.getCurrentAccountId().equals(booking.userId()))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     /**
-     * Search bookings belonging to the authenticated user, optionally filtered by status.
-     * @param vehicleId Unused — bookings are always scoped to the authenticated user by status only.
+     * Search bookings belonging to the authenticated user, optionally further filtered
+     * by status, vehicle, or a start-date range (checked in that priority order — only
+     * one filter applies per request).
+     * @param vehicleId Filter by vehicle ID (optional).
      * @param status Filter by booking status (optional).
      * @param startAtFrom Filter bookings starting from this date (optional).
      * @param startAtTo Filter bookings up to this date (optional).

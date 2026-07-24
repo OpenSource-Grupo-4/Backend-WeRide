@@ -8,6 +8,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,5 +49,27 @@ class BookingQueryServiceImplTest {
         service.searchBookings(new SearchBookingsQuery(42L, null, null, null, null, 0, 20), pageable);
 
         verify(bookingRepository).findByUserId(42L, pageable);
+    }
+
+    @Test
+    void searchBookings_withCustomerIdAndVehicleId_filtersByBoth() {
+        when(bookingRepository.findByUserIdAndVehicleId(eq(42L), eq(5L), any())).thenReturn(emptyPage);
+
+        service.searchBookings(new SearchBookingsQuery(42L, 5L, null, null, null, 0, 20), pageable);
+
+        verify(bookingRepository).findByUserIdAndVehicleId(42L, 5L, pageable);
+    }
+
+    @Test
+    void searchBookings_withCustomerIdAndDateRange_filtersByBoth() {
+        LocalDate from = LocalDate.of(2026, 1, 1);
+        LocalDate to = LocalDate.of(2026, 1, 31);
+        LocalDateTime fromDateTime = from.atStartOfDay();
+        LocalDateTime toDateTime = to.atTime(23, 59, 59);
+        when(bookingRepository.findByUserIdAndStartDateBetween(eq(42L), eq(fromDateTime), eq(toDateTime), any())).thenReturn(emptyPage);
+
+        service.searchBookings(new SearchBookingsQuery(42L, null, null, from, to, 0, 20), pageable);
+
+        verify(bookingRepository).findByUserIdAndStartDateBetween(42L, fromDateTime, toDateTime, pageable);
     }
 }
