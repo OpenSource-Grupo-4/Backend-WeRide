@@ -1,10 +1,10 @@
 package org.example.backendweride.platform.trip.interfaces;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
 import org.example.backendweride.platform.trip.application.internal.commands.TripCommandServiceImpl;
 import org.example.backendweride.platform.trip.application.internal.queries.TripQueryServiceImpl;
 import org.example.backendweride.platform.trip.domain.aggregates.Trip;
-import org.example.backendweride.platform.trip.domain.queries.DeleteTripById;
 import org.example.backendweride.platform.trip.domain.services.commands.TripCommandService;
 import org.example.backendweride.platform.trip.domain.services.queries.TripQueryService;
 import org.example.backendweride.platform.trip.interfaces.resources.CreateTripCommandResource;
@@ -25,12 +25,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class TripController {
     private final TripCommandService tripCommandService;
     private final TripQueryService tripQueryService;
+    private final AuthenticatedAccountProvider authenticatedAccountProvider;
+
     public TripController(
             TripCommandServiceImpl tripCommandService,
-            TripQueryService tripQueryService
+            TripQueryService tripQueryService,
+            AuthenticatedAccountProvider authenticatedAccountProvider
     ) {
         this.tripCommandService = tripCommandService;
         this.tripQueryService = tripQueryService;
+        this.authenticatedAccountProvider = authenticatedAccountProvider;
     }
 
     @PostMapping
@@ -43,7 +47,7 @@ public class TripController {
 
     @GetMapping
     public ResponseEntity<List<Trip>> getAllTrips() {
-        var result = this.tripQueryService.handle();
+        var result = this.tripQueryService.handle(String.valueOf(authenticatedAccountProvider.getCurrentAccountId()));
         return result.map(response ->
                 new ResponseEntity<>(response, HttpStatus.OK
         )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
@@ -51,7 +55,7 @@ public class TripController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTripById(@PathVariable Long id) {
-        this.tripCommandService.handle(id);
+        this.tripCommandService.handle(id, String.valueOf(authenticatedAccountProvider.getCurrentAccountId()));
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
