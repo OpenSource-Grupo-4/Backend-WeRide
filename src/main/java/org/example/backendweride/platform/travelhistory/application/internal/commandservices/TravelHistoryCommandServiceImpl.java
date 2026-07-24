@@ -33,7 +33,7 @@ public class TravelHistoryCommandServiceImpl implements TravelHistoryCommandServ
 
     @Override
     public Optional<TravelHistory> handle(UpdateTravelHistoryCommand travelHistoryCommand) {
-        var existingTravelHistory = travelHistoryRepository.findById(travelHistoryCommand.userId());
+        var existingTravelHistory = travelHistoryRepository.findById(travelHistoryCommand.id());
         if (existingTravelHistory.isPresent()) {
             var travelHistoryToUpdate = existingTravelHistory.get();
             travelHistoryToUpdate.updateFromCommand(travelHistoryCommand);

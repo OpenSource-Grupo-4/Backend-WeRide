@@ -1,7 +1,6 @@
 package org.example.backendweride.platform.plan.interfaces;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.example.backendweride.platform.plan.domain.model.aggregates.Plan;
 import org.example.backendweride.platform.plan.domain.queries.GetPlanById;
 import org.example.backendweride.platform.plan.domain.services.commands.PlanCommandService;
 import org.example.backendweride.platform.plan.domain.services.queries.PlanQueryService;
@@ -48,7 +47,7 @@ public class PlanController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Plan>> findAllPlans() {
+    public ResponseEntity<List<PlanResource>> findAllPlans() {
         var result = this.planQueryService.handle();
         return result.map(response -> new ResponseEntity<>(
                 response, HttpStatus.OK
@@ -57,8 +56,10 @@ public class PlanController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlanById(@PathVariable Long id) {
-        this.planCommandService.handle(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        boolean deleted = this.planCommandService.handle(id);
+        return deleted
+                ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+                : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 }

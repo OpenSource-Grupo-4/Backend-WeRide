@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface PlanCommandService {
     Optional<Plan> handle(CreatePlanCommand command);
-    void handle(Long id);
+    boolean handle(Long id);
 
 }

@@ -5,10 +5,10 @@ import org.example.backendweride.platform.trip.interfaces.resources.CreateTripCo
 
 public class CreateTripCommandFromResourceAssembler {
 
-    public static CreateTripCommand toCommandFromResource(CreateTripCommandResource resource) {
+    public static CreateTripCommand toCommandFromResource(CreateTripCommandResource resource, String userId) {
         return new CreateTripCommand(
                 resource.bookingId(),
-                resource.userId(),
+                userId,
                 resource.vehicleId(),
                 resource.startLocationId(),
                 resource.endLocationId(),

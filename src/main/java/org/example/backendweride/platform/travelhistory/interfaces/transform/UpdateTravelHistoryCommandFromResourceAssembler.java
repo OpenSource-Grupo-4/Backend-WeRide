@@ -10,9 +10,9 @@ import org.example.backendweride.platform.travelhistory.interfaces.resources.Upd
  *          into command objects for updating travel history records.
  */
 public class UpdateTravelHistoryCommandFromResourceAssembler {
-    public static UpdateTravelHistoryCommand toCommandFromResource(Long userId, UpdateTravelHistoryResource resource) {
+    public static UpdateTravelHistoryCommand toCommandFromResource(Long id, UpdateTravelHistoryResource resource) {
         return new UpdateTravelHistoryCommand(
-                userId,
+                id,
                 resource.location(),
                 resource.vehicle(),
                 resource.image(),

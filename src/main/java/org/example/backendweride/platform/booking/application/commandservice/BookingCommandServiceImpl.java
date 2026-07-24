@@ -7,7 +7,7 @@ import org.example.backendweride.platform.booking.domain.services.BookingCommand
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
 import org.example.backendweride.platform.booking.domain.model.commands.CreateBookingCommand;
 import org.example.backendweride.platform.booking.infraestructure.persistence.jpa.BookingRepository;
-import org.example.backendweride.platform.booking.domain.services.VehicleCatalogService;
+import org.example.backendweride.platform.garage.infrastructure.persistence.jpa.VehicleRepository;
 import org.example.backendweride.platform.booking.domain.model.aggregates.Booking;
 
 import java.math.BigDecimal;
@@ -21,17 +21,17 @@ import java.math.BigDecimal;
 public class BookingCommandServiceImpl implements BookingCommandService {
 
     private final BookingRepository bookingRepository;
-    private final VehicleCatalogService vehicleCatalogService;
+    private final VehicleRepository vehicleRepository;
 
-    public BookingCommandServiceImpl(BookingRepository bookingRepository) {
+    public BookingCommandServiceImpl(BookingRepository bookingRepository, VehicleRepository vehicleRepository) {
         this.bookingRepository = bookingRepository;
-        this.vehicleCatalogService = new VehicleCatalogService();
+        this.vehicleRepository = vehicleRepository;
     }
 
     @Override
     @Transactional
     public SaveDraftResult saveDraft(SaveBookingDraftCommand command) {
-        var vehicleOpt = vehicleCatalogService.findById(command.vehicleId().toString());
+        var vehicleOpt = vehicleRepository.findById(command.vehicleId());
         if (vehicleOpt.isEmpty()) {
             return new SaveDraftResult(null, false, "Vehicle not found");
         }
@@ -39,7 +39,7 @@ public class BookingCommandServiceImpl implements BookingCommandService {
         Booking booking = Booking.createDraftFrom(command);
 
         // Calculate cost based on vehicle price per minute
-        BigDecimal pricePerMinute = vehicleOpt.get().pricePerMinute();
+        BigDecimal pricePerMinute = BigDecimal.valueOf(vehicleOpt.get().getPricePerMinute());
         booking.calculateCost(pricePerMinute);
 
         Booking saved = bookingRepository.save(booking);

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -40,6 +41,9 @@ public class Location {
     @Embedded
     @Getter
     private OperatingHours operatingHours;
+    @ElementCollection
+    @CollectionTable(name = "location_amenities", joinColumns = @JoinColumn(name = "location_id"))
+    @Column(name = "amenity")
     @Getter
     private List<String> amenities = new ArrayList<>();
     @Getter
@@ -67,5 +71,18 @@ public class Location {
         this.district = locationCommand.district();
         this.description = locationCommand.description();
         this.image = locationCommand.image();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Location other = (Location) o;
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

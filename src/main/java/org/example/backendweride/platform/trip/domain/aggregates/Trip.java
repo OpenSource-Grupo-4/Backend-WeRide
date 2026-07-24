@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -62,8 +63,14 @@ public class Trip {
     private int temperature;
     @Getter
     private String status;
+    @ElementCollection
+    @CollectionTable(name = "trip_incident_reports", joinColumns = @JoinColumn(name = "trip_id"))
+    @Column(name = "incident_report")
     @Getter
     private List<String> incidentReports = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "trip_photos", joinColumns = @JoinColumn(name = "trip_id"))
+    @Column(name = "photo")
     @Getter
     private List<String> photos = new ArrayList<>();
 
@@ -94,4 +101,17 @@ public class Trip {
         this.incidentReports = tripCommand.incidentReports();
         this.photos = tripCommand.photos();
     }
- }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Trip other = (Trip) o;
+        return id != null && id.equals(other.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+}

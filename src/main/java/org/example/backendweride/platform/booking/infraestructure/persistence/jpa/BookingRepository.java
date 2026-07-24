@@ -29,4 +29,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     Page<Booking> findByVehicleId(Long vehicleId, Pageable pageable);
 
+    Page<Booking> findByUserIdAndVehicleId(Long userId, Long vehicleId, Pageable pageable);
+
+    Page<Booking> findByUserIdAndStartDateBetween(Long userId, LocalDateTime from, LocalDateTime to, Pageable pageable);
+
 }

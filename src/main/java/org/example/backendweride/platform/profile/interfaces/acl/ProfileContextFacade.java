@@ -14,7 +14,7 @@ public class ProfileContextFacade {
     }
 
     public Long createProfileForAccount(Long accountId) {
-        var command = new CreateProfileCommand(accountId);
+        var command = new CreateProfileCommand(accountId, null, null, null);
         var profile = profileCommandService.handle(command);
         return profile.get().getId();
     }
