@@ -18,7 +18,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api/v1/profiles", produces = APPLICATION_JSON_VALUE)
-@Tag(name = "profiles")
+@Tag(name = "Profiles", description = "Create and retrieve user profiles")
 public class ProfileController {
     private final ProfileCommandService profileCommandService;
     private final ProfileQueryService profileQueryService;
@@ -32,7 +32,9 @@ public class ProfileController {
 
     @PostMapping
     public ResponseEntity<ProfileResource> createProfile(@Valid @RequestBody CreateProfileCommandResource profileResource) {
-        var result = this.profileCommandService.handle(CreateProfileCommandFromResourceAssembler.toCommandFromResource(profileResource));
+        var userId = authenticatedAccountProvider.getCurrentAccountId();
+        var result = this.profileCommandService.handle(
+                CreateProfileCommandFromResourceAssembler.toCommandFromResource(profileResource, userId));
 
         return result.map(response -> new ResponseEntity<>(
                 ProfileResourceFromEntity.tpProfileResourceFromEntity(response), CREATED

@@ -20,7 +20,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api/v1/trips", produces = APPLICATION_JSON_VALUE)
-@Tag(name = "Trips")
+@Tag(name = "Trips", description = "Create, list, and delete trips")
 public class TripController {
     private final TripCommandService tripCommandService;
     private final TripQueryService tripQueryService;

@@ -21,7 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api/v1/location", produces = APPLICATION_JSON_VALUE)
-@Tag(name = "Locations")
+@Tag(name = "Locations", description = "Manage garage/pickup locations")
 public class LocationController {
     private final LocationCommandService locationCommandService;
     private final LocationQueryService locationQueryService;

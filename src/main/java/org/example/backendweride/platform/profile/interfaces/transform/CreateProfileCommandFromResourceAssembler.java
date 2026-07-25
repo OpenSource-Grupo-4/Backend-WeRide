@@ -4,9 +4,9 @@ import org.example.backendweride.platform.profile.domain.model.commands.CreatePr
 import org.example.backendweride.platform.profile.interfaces.resources.CreateProfileCommandResource;
 
 public class CreateProfileCommandFromResourceAssembler {
-    public static CreateProfileCommand toCommandFromResource(CreateProfileCommandResource resource) {
+    public static CreateProfileCommand toCommandFromResource(CreateProfileCommandResource resource, Long userId) {
         return new CreateProfileCommand(
-                resource.userId(),
+                userId,
                 resource.firstName(),
                 resource.lastName(),
                 resource.email()

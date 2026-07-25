@@ -12,7 +12,7 @@ import java.util.Objects;
 @EntityListeners(AuditingEntityListener.class)
 public class Profile {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter
     private Long id;
     @Getter
