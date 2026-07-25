@@ -1,5 +1,6 @@
 package org.example.backendweride.platform.garage.interfaces.rest;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.backendweride.platform.garage.domain.model.commands.DeleteVehicleCommand; // IMPORTANTE: Nueva importación
 import org.example.backendweride.platform.garage.domain.model.queries.GetAllVehiclesQuery;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/v1/vehicles", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Vehicles", description = "Manage the vehicle fleet (garage)")
 public class VehiclesController {
 
     private final VehicleCommandService vehicleCommandService;

@@ -18,7 +18,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api/v1/profiles", produces = APPLICATION_JSON_VALUE)
-@Tag(name = "profiles")
+@Tag(name = "Profiles", description = "Create and retrieve user profiles")
 public class ProfileController {
     private final ProfileCommandService profileCommandService;
     private final ProfileQueryService profileQueryService;

@@ -18,7 +18,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(value = "/api/v1/plans", produces = APPLICATION_JSON_VALUE)
-@Tag(name = "Plans")
+@Tag(name = "Plans", description = "Manage subscription plans")
 public class PlanController {
 
     private final PlanCommandService planCommandService;
