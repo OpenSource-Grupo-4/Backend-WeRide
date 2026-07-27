@@ -1,6 +1,7 @@
 package org.example.backendweride.platform.notifications.domain.model.aggregates;
 
 import org.example.backendweride.platform.notifications.domain.model.commands.CreateNotificationCommand;
+import org.example.backendweride.platform.notifications.domain.model.commands.UpdateNotificationCommand;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
@@ -77,6 +78,23 @@ public class Notification extends AbstractAggregateRoot<Notification> {
     public void markAsRead() {
         this.isRead = true;
         this.readAt = new Date();
+    }
+
+    public void updateFrom(UpdateNotificationCommand command) {
+        if (command.title() != null) title = command.title();
+        if (command.message() != null) message = command.message();
+        if (command.type() != null) type = command.type();
+        if (command.category() != null) category = command.category();
+        if (command.priority() != null) priority = command.priority();
+        if (command.isRead() != null) {
+            if (command.isRead()) markAsRead();
+            else { isRead = false; readAt = null; }
+        }
+        if (command.actionRequired() != null) actionRequired = command.actionRequired();
+        if (command.relatedEntityId() != null) relatedEntityId = command.relatedEntityId();
+        if (command.relatedEntityType() != null) relatedEntityType = command.relatedEntityType();
+        if (command.icon() != null) icon = command.icon();
+        if (command.color() != null) color = command.color();
     }
 
     @Override

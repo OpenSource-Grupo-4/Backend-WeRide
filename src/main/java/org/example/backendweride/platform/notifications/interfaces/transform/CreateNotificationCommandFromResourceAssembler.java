@@ -5,8 +5,12 @@ import org.example.backendweride.platform.notifications.interfaces.resources.Cre
 
 public class CreateNotificationCommandFromResourceAssembler {
     public static CreateNotificationCommand toCommandFromResource(CreateNotificationResource resource) {
+        return toCommandFromResource(resource, resource.userId());
+    }
+
+    public static CreateNotificationCommand toCommandFromResource(CreateNotificationResource resource, String userId) {
         return new CreateNotificationCommand(
-                resource.userId(),
+                userId,
                 resource.title(),
                 resource.message(),
                 resource.type(),
