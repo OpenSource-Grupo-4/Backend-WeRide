@@ -9,6 +9,10 @@ import org.example.backendweride.platform.booking.domain.model.commands.SaveBook
 public class SaveBookingDraftCommandFromResourceAssembler {
 
     public static SaveBookingDraftCommand toCommand(SaveBookingDraftResource r) {
+        return toCommand(r, r == null ? null : r.userId());
+    }
+
+    public static SaveBookingDraftCommand toCommand(SaveBookingDraftResource r, Long userId) {
         if (r == null) return null;
 
         Integer ratingScore = null;
@@ -20,7 +24,7 @@ public class SaveBookingDraftCommandFromResourceAssembler {
         }
 
         return new SaveBookingDraftCommand(
-            r.userId(),
+            userId,
             r.vehicleId(),
             r.startLocationId(),
             r.endLocationId(),

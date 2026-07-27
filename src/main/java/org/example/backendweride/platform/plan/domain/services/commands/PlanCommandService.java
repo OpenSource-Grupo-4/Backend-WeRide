@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface PlanCommandService {
     Optional<Plan> handle(CreatePlanCommand command);
     boolean handle(Long id);
+    Optional<Plan> handle(Long id, CreatePlanCommand command);
 
 }

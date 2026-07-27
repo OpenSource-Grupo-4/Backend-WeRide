@@ -26,4 +26,9 @@ public class LocationQueryServiceImpl implements LocationQueryService {
                 .collect(Collectors.toList());
         return Optional.of(locations);
     }
+
+    @Override
+    public Optional<LocationResource> handle(Long id) {
+        return locationRepository.findById(id).map(LocationResourceFromEntityAssembler::toResourceFromEntity);
+    }
 }

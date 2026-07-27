@@ -3,6 +3,7 @@ package org.example.backendweride.platform.trip.domain.aggregates;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.example.backendweride.platform.trip.domain.commands.CreateTripCommand;
+import org.example.backendweride.platform.trip.domain.commands.UpdateTripCommand;
 import org.example.backendweride.platform.trip.domain.valueobjects.RouteCoordinates;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -79,6 +80,10 @@ public class Trip {
     }
 
     public Trip(CreateTripCommand tripCommand) {
+        updateFrom(tripCommand);
+    }
+
+    public void updateFrom(CreateTripCommand tripCommand) {
         this.userId = tripCommand.userId();
         this.bookingId = tripCommand.bookingId();
         this.vehicleId = tripCommand.vehicleId();
@@ -100,6 +105,29 @@ public class Trip {
         this.status = tripCommand.status();
         this.incidentReports = tripCommand.incidentReports();
         this.photos = tripCommand.photos();
+    }
+
+    public void updateFrom(UpdateTripCommand command) {
+        if (command.bookingId() != null) bookingId = command.bookingId();
+        if (command.vehicleId() != null) vehicleId = command.vehicleId();
+        if (command.startLocationId() != null) startLocationId = command.startLocationId();
+        if (command.endLocationId() != null) endLocationId = command.endLocationId();
+        if (command.route() != null) route = command.route();
+        if (command.routeCoordinates() != null) routeCoordinates = command.routeCoordinates();
+        if (command.startDate() != null) startDate = command.startDate();
+        if (command.endDate() != null) endDate = command.endDate();
+        if (command.duration() != null) duration = command.duration();
+        if (command.distance() != null) distance = command.distance();
+        if (command.averageSpeed() != null) averageSpeed = command.averageSpeed();
+        if (command.maxSpeed() != null) maxSpeed = command.maxSpeed();
+        if (command.totalCost() != null) totalCost = command.totalCost();
+        if (command.carbonSaved() != null) carbonSaved = command.carbonSaved();
+        if (command.caloriesBurned() != null) caloriesBurned = command.caloriesBurned();
+        if (command.weather() != null) weather = command.weather();
+        if (command.temperature() != null) temperature = command.temperature();
+        if (command.status() != null) status = command.status();
+        if (command.incidentReports() != null) incidentReports = command.incidentReports();
+        if (command.photos() != null) photos = command.photos();
     }
 
     @Override

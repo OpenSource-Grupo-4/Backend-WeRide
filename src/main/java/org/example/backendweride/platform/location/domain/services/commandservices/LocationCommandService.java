@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface LocationCommandService {
     Optional<Location> handle(CreateLocationCommand locationCommand);
+    Optional<Location> handle(Long id, CreateLocationCommand locationCommand);
+    boolean delete(Long id);
 }

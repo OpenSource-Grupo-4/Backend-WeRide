@@ -55,6 +55,10 @@ public class Plan {
 
     }
     public Plan(CreatePlanCommand planCommand) {
+        updateFrom(planCommand);
+    }
+
+    public void updateFrom(CreatePlanCommand planCommand) {
         this.name = planCommand.name();
         this.description = planCommand.description();
         this.price = planCommand.price();

@@ -12,6 +12,10 @@ import org.example.backendweride.platform.booking.domain.model.commands.CreateBo
 public class CreateBookingCommandFromResourceAssembler {
 
     public static CreateBookingCommand toCommand(CreateBookingResource r) {
+        return toCommand(r, r == null ? null : r.userId());
+    }
+
+    public static CreateBookingCommand toCommand(CreateBookingResource r, Long userId) {
         if (r == null) return null;
 
         Integer ratingScore = null;
@@ -23,7 +27,7 @@ public class CreateBookingCommandFromResourceAssembler {
         }
 
         return new CreateBookingCommand(
-            r.userId(),
+            userId,
             r.vehicleId(),
             r.startLocationId(),
             r.endLocationId(),

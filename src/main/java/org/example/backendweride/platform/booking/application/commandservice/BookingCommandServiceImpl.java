@@ -6,11 +6,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.example.backendweride.platform.booking.domain.services.BookingCommandService;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
 import org.example.backendweride.platform.booking.domain.model.commands.CreateBookingCommand;
+import org.example.backendweride.platform.booking.domain.model.commands.UpdateBookingCommand;
 import org.example.backendweride.platform.booking.infraestructure.persistence.jpa.BookingRepository;
 import org.example.backendweride.platform.garage.infrastructure.persistence.jpa.VehicleRepository;
 import org.example.backendweride.platform.booking.domain.model.aggregates.Booking;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * Implementation of BookingCommandService to handle booking-related commands.
@@ -54,5 +56,28 @@ public class BookingCommandServiceImpl implements BookingCommandService {
         Booking saved = bookingRepository.save(booking);
 
         return new CreateBookingResult(saved.getBookingId(), true, "Booking created");
+    }
+
+    @Override
+    @Transactional
+    public Optional<Booking> updateBooking(Long id, Long userId, UpdateBookingCommand command) {
+        return findByIdentifier(id)
+                .filter(booking -> userId.equals(booking.getUserId()))
+                .map(booking -> {
+                    booking.updateFrom(command);
+                    return bookingRepository.save(booking);
+                });
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteBooking(Long id, Long userId) {
+        var booking = findByIdentifier(id).filter(item -> userId.equals(item.getUserId()));
+        booking.ifPresent(bookingRepository::delete);
+        return booking.isPresent();
+    }
+
+    private Optional<Booking> findByIdentifier(Long id) {
+        return bookingRepository.findById(id).or(() -> bookingRepository.findByBookingId(id));
     }
 }

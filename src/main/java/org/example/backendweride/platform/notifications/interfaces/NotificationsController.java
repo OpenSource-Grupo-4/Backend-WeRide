@@ -7,8 +7,10 @@ import org.example.backendweride.platform.notifications.domain.services.Notifica
 import org.example.backendweride.platform.notifications.domain.services.NotificationQueryService;
 import org.example.backendweride.platform.notifications.interfaces.resources.CreateNotificationResource;
 import org.example.backendweride.platform.notifications.interfaces.resources.NotificationResource;
+import org.example.backendweride.platform.notifications.interfaces.resources.UpdateNotificationResource;
 import org.example.backendweride.platform.notifications.interfaces.transform.CreateNotificationCommandFromResourceAssembler;
 import org.example.backendweride.platform.notifications.interfaces.transform.NotificationResourceFromEntityAssembler;
+import org.example.backendweride.platform.notifications.interfaces.transform.UpdateNotificationCommandFromResourceAssembler;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +39,8 @@ public class NotificationsController {
 
     @PostMapping
     public ResponseEntity<NotificationResource> createNotification(@RequestBody CreateNotificationResource resource) {
-        var command = CreateNotificationCommandFromResourceAssembler.toCommandFromResource(resource);
+        var command = CreateNotificationCommandFromResourceAssembler.toCommandFromResource(
+                resource, String.valueOf(authenticatedAccountProvider.getCurrentAccountId()));
 
         // CORRECCIÓN: Llamamos al servicio sin guardar el resultado en una variable
         notificationCommandService.handle(command);
@@ -80,5 +83,27 @@ public class NotificationsController {
         var command = new MarkNotificationAsReadCommand(notificationId, String.valueOf(authenticatedAccountProvider.getCurrentAccountId()));
         notificationCommandService.handle(command);
         return ResponseEntity.ok("Notification marked as read");
+    }
+
+    @PatchMapping("/{notificationId}")
+    public ResponseEntity<NotificationResource> updateNotification(
+            @PathVariable String notificationId,
+            @RequestBody UpdateNotificationResource resource) {
+        return notificationCommandService.update(
+                        notificationId,
+                        String.valueOf(authenticatedAccountProvider.getCurrentAccountId()),
+                        UpdateNotificationCommandFromResourceAssembler.toCommand(resource))
+                .map(NotificationResourceFromEntityAssembler::toResourceFromEntity)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable String notificationId) {
+        return notificationCommandService.delete(
+                        notificationId,
+                        String.valueOf(authenticatedAccountProvider.getCurrentAccountId()))
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }
