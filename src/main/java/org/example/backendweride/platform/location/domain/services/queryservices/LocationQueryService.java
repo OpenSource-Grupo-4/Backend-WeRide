@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface LocationQueryService {
     Optional<List<LocationResource>> handle();
+    Optional<LocationResource> handle(Long id);
 }

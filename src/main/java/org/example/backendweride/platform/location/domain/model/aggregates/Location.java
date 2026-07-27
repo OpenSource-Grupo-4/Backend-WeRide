@@ -59,18 +59,22 @@ public class Location {
     }
 
     public Location(CreateLocationCommand locationCommand){
-        this.name = locationCommand.name();
-        this.address = locationCommand.address();
-        this.coordinates = locationCommand.coordinates();
-        this.type = locationCommand.type();
-        this.capacity = locationCommand.capacity();
-        this.availableSpots = locationCommand.availableSpots();
-        this.isActive = locationCommand.isActive();
-        this.operatingHours = locationCommand.operatingHours();
-        this.amenities = locationCommand.amenities();
-        this.district = locationCommand.district();
-        this.description = locationCommand.description();
-        this.image = locationCommand.image();
+        updateFrom(locationCommand);
+    }
+
+    public void updateFrom(CreateLocationCommand command) {
+        this.name = command.name();
+        this.address = command.address();
+        this.coordinates = command.coordinates();
+        this.type = command.type();
+        this.capacity = command.capacity();
+        this.availableSpots = command.availableSpots();
+        this.isActive = command.isActive();
+        this.operatingHours = command.operatingHours();
+        this.amenities = command.amenities();
+        this.district = command.district();
+        this.description = command.description();
+        this.image = command.image();
     }
 
     @Override

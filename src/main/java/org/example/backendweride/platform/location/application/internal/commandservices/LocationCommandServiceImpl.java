@@ -23,4 +23,19 @@ public class LocationCommandServiceImpl implements LocationCommandService {
         return Optional.of(createLocation);
 
     }
+
+    @Override
+    public Optional<Location> handle(Long id, CreateLocationCommand command) {
+        return locationRepository.findById(id).map(location -> {
+            location.updateFrom(command);
+            return locationRepository.save(location);
+        });
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        if (!locationRepository.existsById(id)) return false;
+        locationRepository.deleteById(id);
+        return true;
+    }
 }
