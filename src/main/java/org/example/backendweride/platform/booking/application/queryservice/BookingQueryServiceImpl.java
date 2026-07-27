@@ -33,7 +33,9 @@ public class BookingQueryServiceImpl implements BookingQueryService {
     @Override
     public Optional<BookingResource> getBookingById(GetBookingByIdQuery q) {
         if (q == null || q.bookingId() == null) return Optional.empty();
-        return bookingRepository.findByBookingId(q.bookingId()).map(BookingResourceFromEntityAssembler::toResource);
+        return bookingRepository.findById(q.bookingId())
+                .or(() -> bookingRepository.findByBookingId(q.bookingId()))
+                .map(BookingResourceFromEntityAssembler::toResource);
     }
 
     @Override
