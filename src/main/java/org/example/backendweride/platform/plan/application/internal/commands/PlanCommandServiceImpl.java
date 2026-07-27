@@ -32,4 +32,12 @@ public class PlanCommandServiceImpl implements PlanCommandService {
         return true;
     }
 
+    @Override
+    public Optional<Plan> handle(Long id, CreatePlanCommand command) {
+        return planRepository.findById(id).map(plan -> {
+            plan.updateFrom(command);
+            return planRepository.save(plan);
+        });
+    }
+
 }

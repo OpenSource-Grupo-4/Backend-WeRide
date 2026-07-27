@@ -51,7 +51,15 @@ public class PlanController {
         var result = this.planQueryService.handle();
         return result.map(response -> new ResponseEntity<>(
                 response, HttpStatus.OK
-        )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PlanResource> updatePlan(@PathVariable Long id, @RequestBody CreatePlanResource resource) {
+        return planCommandService.handle(id, CreatePlanCommandFronResourceAssembler.toCommandFromResource(resource))
+                .map(PlanResourceFromEntity::toPlanResource)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
