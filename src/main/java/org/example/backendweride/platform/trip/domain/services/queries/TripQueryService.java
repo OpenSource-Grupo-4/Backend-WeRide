@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface TripQueryService {
     Optional<List<TripResource>> handle(String userId);
+    Optional<TripResource> handle(Long id, String userId);
 }

@@ -25,4 +25,11 @@ public class TripQueryServiceImpl implements TripQueryService {
                 .collect(Collectors.toList());
         return Optional.of(trips);
     }
+
+    @Override
+    public Optional<TripResource> handle(Long id, String userId) {
+        return tripRepository.findById(id)
+                .filter(trip -> userId.equals(trip.getUserId()))
+                .map(TripResourceFromEntityAssembler::toResource);
+    }
 }
