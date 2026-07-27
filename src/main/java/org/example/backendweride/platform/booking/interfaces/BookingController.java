@@ -20,8 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.example.backendweride.platform.booking.interfaces.resources.CreateBookingResource;
 import org.example.backendweride.platform.booking.interfaces.resources.SaveBookingDraftResource;
 import org.example.backendweride.platform.booking.interfaces.resources.BookingResource;
+import org.example.backendweride.platform.booking.interfaces.resources.UpdateBookingResource;
 import org.example.backendweride.platform.booking.interfaces.transform.CreateBookingCommandFromResourceAssembler;
 import org.example.backendweride.platform.booking.interfaces.transform.SaveBookingDraftCommandFromResourceAssembler;
+import org.example.backendweride.platform.booking.interfaces.transform.UpdateBookingCommandFromResourceAssembler;
 import org.example.backendweride.platform.booking.domain.services.BookingCommandService;
 import org.example.backendweride.platform.booking.domain.services.BookingQueryService;
 import org.example.backendweride.platform.booking.domain.services.BookingDraftService;
@@ -77,7 +79,8 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "Invalid data provided")
     })
     public ResponseEntity<BookingResource> saveDraft(@RequestBody SaveBookingDraftResource resource) {
-        SaveBookingDraftCommand cmd = SaveBookingDraftCommandFromResourceAssembler.toCommand(resource);
+        Long userId = authenticatedAccountProvider.getCurrentAccountId();
+        SaveBookingDraftCommand cmd = SaveBookingDraftCommandFromResourceAssembler.toCommand(resource, userId);
         var result = commandService.saveDraft(cmd);
         if (!result.success()) {
             return ResponseEntity.badRequest().build();
@@ -99,7 +102,8 @@ public class BookingController {
             @ApiResponse(responseCode = "404", description = "Booking could not be found")
     })
     public ResponseEntity<BookingResource> createBooking(@RequestBody CreateBookingResource resource) {
-        CreateBookingCommand cmd = CreateBookingCommandFromResourceAssembler.toCommand(resource);
+        CreateBookingCommand cmd = CreateBookingCommandFromResourceAssembler.toCommand(
+                resource, authenticatedAccountProvider.getCurrentAccountId());
         var result = commandService.createBooking(cmd);
         if (!result.success()) return ResponseEntity.badRequest().build();
 
@@ -123,6 +127,29 @@ public class BookingController {
         return opt.filter(booking -> authenticatedAccountProvider.getCurrentAccountId().equals(booking.userId()))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<BookingResource> updateBooking(@PathVariable Long id, @RequestBody UpdateBookingResource resource) {
+        var updated = commandService.updateBooking(
+                id,
+                authenticatedAccountProvider.getCurrentAccountId(),
+                UpdateBookingCommandFromResourceAssembler.toCommand(resource));
+        return updated.map(org.example.backendweride.platform.booking.interfaces.transform.BookingResourceFromEntityAssembler::toResource)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<BookingResource> replaceBooking(@PathVariable Long id, @RequestBody UpdateBookingResource resource) {
+        return updateBooking(id, resource);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+        return commandService.deleteBooking(id, authenticatedAccountProvider.getCurrentAccountId())
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 
     /**
@@ -180,7 +207,7 @@ public class BookingController {
             @ApiResponse(responseCode = "400", description = "Invalid customer ID")
     })
     public ResponseEntity<Page<BookingResource>> getDraftsByCustomer(
-        @RequestParam Long customerId,
+        @RequestParam(required = false) Long customerId,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int size
     ) {

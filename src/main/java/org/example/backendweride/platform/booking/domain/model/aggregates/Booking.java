@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.backendweride.platform.booking.domain.model.commands.CreateBookingCommand;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
+import org.example.backendweride.platform.booking.domain.model.commands.UpdateBookingCommand;
 import org.example.backendweride.platform.booking.domain.model.valueobjects.Rating;
 import org.example.backendweride.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
 
@@ -171,6 +172,29 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
 
         booking.issues = new ArrayList<>();
         return booking;
+    }
+
+    public void updateFrom(UpdateBookingCommand command) {
+        if (command.vehicleId() != null) vehicleId = command.vehicleId();
+        if (command.startLocationId() != null) startLocationId = command.startLocationId();
+        if (command.endLocationId() != null) endLocationId = command.endLocationId();
+        if (command.reservedAt() != null) reservedAt = command.reservedAt();
+        if (command.startDate() != null) startDate = command.startDate();
+        if (command.endDate() != null) endDate = command.endDate();
+        if (command.actualStartDate() != null) actualStartDate = command.actualStartDate();
+        if (command.actualEndDate() != null) actualEndDate = command.actualEndDate();
+        if (command.status() != null) status = command.status();
+        if (command.totalCost() != null) totalCost = command.totalCost();
+        if (command.discount() != null) discount = command.discount();
+        if (command.finalCost() != null) finalCost = command.finalCost();
+        if (command.paymentMethod() != null) paymentMethod = command.paymentMethod();
+        if (command.paymentStatus() != null) paymentStatus = command.paymentStatus();
+        if (command.distance() != null) distance = command.distance();
+        if (command.duration() != null) duration = command.duration();
+        if (command.averageSpeed() != null) averageSpeed = command.averageSpeed();
+        if (command.ratingScore() != null || command.ratingComment() != null) {
+            setRating(command.ratingScore(), command.ratingComment());
+        }
     }
 
     /**
