@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import org.example.backendweride.platform.trip.domain.commands.CreateTripCommand;
 import org.example.backendweride.platform.trip.domain.commands.UpdateTripCommand;
+import org.example.backendweride.platform.trip.domain.entities.TripIncidentReport;
+import org.example.backendweride.platform.trip.domain.entities.TripPhoto;
+import org.example.backendweride.platform.trip.domain.entities.TripRouteCoordinate;
 import org.example.backendweride.platform.trip.domain.valueobjects.RouteCoordinates;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -11,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "trips")
@@ -38,10 +42,16 @@ public class Trip {
 
     @Getter
     private String route;
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "trip_route_coordinates", joinColumns = @JoinColumn(name = "trip_id"))
-    @Getter
-    private List<RouteCoordinates> routeCoordinates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TripRouteCoordinate> routeCoordinateEntities = new ArrayList<>();
+
+    public List<RouteCoordinates> getRouteCoordinates() {
+        return routeCoordinateEntities.stream()
+                .map(c -> new RouteCoordinates(c.getLat(), c.getLng()))
+                .collect(Collectors.toList());
+    }
+
     @Getter
     private Date startDate;
     @Getter
@@ -66,16 +76,20 @@ public class Trip {
     private int temperature;
     @Getter
     private String status;
-    @ElementCollection
-    @CollectionTable(name = "trip_incident_reports", joinColumns = @JoinColumn(name = "trip_id"))
-    @Column(name = "incident_report")
-    @Getter
-    private List<String> incidentReports = new ArrayList<>();
-    @ElementCollection
-    @CollectionTable(name = "trip_photos", joinColumns = @JoinColumn(name = "trip_id"))
-    @Column(name = "photo")
-    @Getter
-    private List<String> photos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TripIncidentReport> incidentReportEntities = new ArrayList<>();
+
+    public List<String> getIncidentReports() {
+        return incidentReportEntities.stream().map(TripIncidentReport::getIncidentReport).collect(Collectors.toList());
+    }
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TripPhoto> photoEntities = new ArrayList<>();
+
+    public List<String> getPhotos() {
+        return photoEntities.stream().map(TripPhoto::getPhoto).collect(Collectors.toList());
+    }
 
     protected Trip() {
 
@@ -92,7 +106,7 @@ public class Trip {
         this.startLocationId = tripCommand.startLocationId();
         this.endLocationId = tripCommand.endLocationId();
         this.route = tripCommand.route();
-        this.routeCoordinates = tripCommand.routeCoordinates();
+        this.routeCoordinateEntities = toRouteCoordinateEntities(tripCommand.routeCoordinates());
         this.startDate = tripCommand.startDate();
         this.endDate = tripCommand.endDate();
         this.duration = tripCommand.duration();
@@ -105,8 +119,8 @@ public class Trip {
         this.weather = tripCommand.weather();
         this.temperature = tripCommand.temperature();
         this.status = tripCommand.status();
-        this.incidentReports = tripCommand.incidentReports();
-        this.photos = tripCommand.photos();
+        this.incidentReportEntities = toIncidentReportEntities(tripCommand.incidentReports());
+        this.photoEntities = toPhotoEntities(tripCommand.photos());
     }
 
     public void updateFrom(UpdateTripCommand command) {
@@ -115,7 +129,7 @@ public class Trip {
         if (command.startLocationId() != null) startLocationId = command.startLocationId();
         if (command.endLocationId() != null) endLocationId = command.endLocationId();
         if (command.route() != null) route = command.route();
-        if (command.routeCoordinates() != null) routeCoordinates = command.routeCoordinates();
+        if (command.routeCoordinates() != null) routeCoordinateEntities = toRouteCoordinateEntities(command.routeCoordinates());
         if (command.startDate() != null) startDate = command.startDate();
         if (command.endDate() != null) endDate = command.endDate();
         if (command.duration() != null) duration = command.duration();
@@ -128,8 +142,25 @@ public class Trip {
         if (command.weather() != null) weather = command.weather();
         if (command.temperature() != null) temperature = command.temperature();
         if (command.status() != null) status = command.status();
-        if (command.incidentReports() != null) incidentReports = command.incidentReports();
-        if (command.photos() != null) photos = command.photos();
+        if (command.incidentReports() != null) incidentReportEntities = toIncidentReportEntities(command.incidentReports());
+        if (command.photos() != null) photoEntities = toPhotoEntities(command.photos());
+    }
+
+    private List<TripRouteCoordinate> toRouteCoordinateEntities(List<RouteCoordinates> coordinates) {
+        if (coordinates == null) return new ArrayList<>();
+        return coordinates.stream()
+                .map(c -> new TripRouteCoordinate(this, c.lat(), c.lng()))
+                .collect(Collectors.toList());
+    }
+
+    private List<TripIncidentReport> toIncidentReportEntities(List<String> reports) {
+        if (reports == null) return new ArrayList<>();
+        return reports.stream().map(r -> new TripIncidentReport(this, r)).collect(Collectors.toList());
+    }
+
+    private List<TripPhoto> toPhotoEntities(List<String> photos) {
+        if (photos == null) return new ArrayList<>();
+        return photos.stream().map(p -> new TripPhoto(this, p)).collect(Collectors.toList());
     }
 
     @Override
