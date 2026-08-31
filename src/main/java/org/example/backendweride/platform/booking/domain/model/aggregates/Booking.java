@@ -13,8 +13,11 @@ import lombok.Setter;
 import org.example.backendweride.platform.booking.domain.model.commands.CreateBookingCommand;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
 import org.example.backendweride.platform.booking.domain.model.commands.UpdateBookingCommand;
+import org.example.backendweride.platform.booking.domain.model.entities.BookingIssue;
 import org.example.backendweride.platform.booking.domain.model.valueobjects.Rating;
 import org.example.backendweride.platform.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
+
+import java.util.stream.Collectors;
 
 /**
  * Booking aggregate root
@@ -70,13 +73,15 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
     @Embedded
     private Rating rating;
 
-    @ElementCollection
-    @CollectionTable(name = "booking_issues", joinColumns = @JoinColumn(name = "booking_id"))
-    @Column(name = "issue")
-    private List<String> issues;
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingIssue> issueEntities = new ArrayList<>();
+
+    public List<String> getIssues() {
+        return issueEntities.stream().map(BookingIssue::getIssue).collect(Collectors.toList());
+    }
 
     public Booking() {
-        this.issues = new ArrayList<>();
+        this.issueEntities = new ArrayList<>();
     }
 
     public Booking(Long userId, Long vehicleId, Long startLocationId, Long endLocationId,
@@ -92,7 +97,7 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
         this.status = "pending";
         this.paymentMethod = paymentMethod;
         this.paymentStatus = paymentStatus;
-        this.issues = new ArrayList<>();
+        this.issueEntities = new ArrayList<>();
         this.discount = BigDecimal.ZERO;
     }
 
@@ -131,7 +136,7 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
             booking.rating.setComment(cmd.ratingComment());
         }
 
-        booking.issues = new ArrayList<>();
+        booking.issueEntities = new ArrayList<>();
         return booking;
     }
 
@@ -170,7 +175,7 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
             booking.rating.setComment(cmd.ratingComment());
         }
 
-        booking.issues = new ArrayList<>();
+        booking.issueEntities = new ArrayList<>();
         return booking;
     }
 
@@ -255,12 +260,8 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
      * @param issue the issue description
      */
     public void addIssue(String issue) {
-        if (this.issues == null) {
-            this.issues = new ArrayList<>();
-        }
-        this.issues.add(issue);
+        this.issueEntities.add(new BookingIssue(this, issue));
     }
-
     /**
      * Set rating for the booking.
      *
