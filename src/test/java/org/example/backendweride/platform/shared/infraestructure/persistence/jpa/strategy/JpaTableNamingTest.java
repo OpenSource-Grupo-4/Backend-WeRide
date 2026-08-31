@@ -1,6 +1,5 @@
 package org.example.backendweride.platform.shared.infraestructure.persistence.jpa.strategy;
 
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Table;
 import org.example.backendweride.platform.booking.domain.model.aggregates.Booking;
 import org.example.backendweride.platform.garage.domain.model.aggregates.Vehicle;
@@ -14,7 +13,6 @@ import org.example.backendweride.platform.trip.domain.aggregates.Trip;
 import org.example.backendweride.platform.unlockrequest.domain.model.UnlockRequest;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Field;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -42,19 +40,19 @@ class JpaTableNamingTest {
     }
 
     @Test
-    void vehicleFeaturesUsesTheExpectedCollectionTable() throws NoSuchFieldException {
-        assertCollectionTable(Vehicle.class, "features", "vehicle_features");
-    }
+    void childEntitiesDeclareTheExpectedCollectionTableNames() {
+        Map<Class<?>, String> expectedNames = Map.of(
+                org.example.backendweride.platform.garage.domain.model.entities.VehicleFeature.class, "vehicle_features",
+                org.example.backendweride.platform.booking.domain.model.entities.BookingIssue.class, "booking_issues",
+                org.example.backendweride.platform.plan.domain.model.entities.PlanBenefit.class, "plan_benefits",
+                org.example.backendweride.platform.location.domain.model.entities.LocationAmenity.class, "location_amenities",
+                org.example.backendweride.platform.trip.domain.entities.TripIncidentReport.class, "trip_incident_reports",
+                org.example.backendweride.platform.trip.domain.entities.TripPhoto.class, "trip_photos",
+                org.example.backendweride.platform.trip.domain.entities.TripRouteCoordinate.class, "trip_route_coordinates"
+        );
 
-    @Test
-    void tripRouteCoordinatesUsesAnExplicitCollectionTable() throws NoSuchFieldException {
-        assertCollectionTable(Trip.class, "routeCoordinates", "trip_route_coordinates");
-    }
-
-    private void assertCollectionTable(Class<?> entityClass, String fieldName, String expectedName)
-            throws NoSuchFieldException {
-        Field field = entityClass.getDeclaredField(fieldName);
-
-        assertEquals(expectedName, field.getAnnotation(CollectionTable.class).name());
+        expectedNames.forEach((entityClass, expectedName) ->
+                assertEquals(expectedName, entityClass.getAnnotation(Table.class).name(),
+                        () -> "Unexpected table name for " + entityClass.getSimpleName()));
     }
 }
