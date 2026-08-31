@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.Objects;
 
 @Entity
+@Table(name = "profiles")
 @EntityListeners(AuditingEntityListener.class)
 public class Profile {
     @Id

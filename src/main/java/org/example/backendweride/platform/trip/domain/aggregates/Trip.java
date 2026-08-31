@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Table(name = "trips")
 @EntityListeners(AuditingEntityListener.class)
 public class Trip {
     @Id
@@ -38,6 +39,7 @@ public class Trip {
     @Getter
     private String route;
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "trip_route_coordinates", joinColumns = @JoinColumn(name = "trip_id"))
     @Getter
     private List<RouteCoordinates> routeCoordinates = new ArrayList<>();
     @Getter

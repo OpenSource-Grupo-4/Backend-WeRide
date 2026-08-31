@@ -5,7 +5,7 @@ import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
 import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 
 /**
- * A PhysicalNamingStrategy that converts all table and column names to snake_case and pluralizes table names.
+ * A PhysicalNamingStrategy that converts database identifiers to snake_case.
  */
 public class SnakeCasePhysicalNamingStrategy implements PhysicalNamingStrategy {
 
@@ -38,7 +38,7 @@ public class SnakeCasePhysicalNamingStrategy implements PhysicalNamingStrategy {
 
     @Override
     public Identifier toPhysicalTableName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(this.toPlural(identifier));
+        return this.toSnakeCase(identifier);
     }
 
     /**
@@ -55,32 +55,7 @@ public class SnakeCasePhysicalNamingStrategy implements PhysicalNamingStrategy {
         final String newName = identifier.getText()
                 .replaceAll(regex, replacement)
                 .toLowerCase();
-        return Identifier.toIdentifier(newName);
-    }
-
-    // Simple pluralization fallback to avoid an external dependency.
-    private Identifier toPlural(final Identifier identifier) {
-        if (identifier == null) return null;
-        String word = identifier.getText();
-        String plural = simplePluralize(word);
-        return Identifier.toIdentifier(plural);
-    }
-
-    private String simplePluralize(String word) {
-        if (word == null || word.isEmpty()) return word;
-        String lower = word.toLowerCase();
-        // basic rules
-        if (lower.endsWith("y") && lower.length() > 1 && !isVowel(lower.charAt(lower.length() - 2))) {
-            return word.substring(0, word.length() - 1) + "ies";
-        }
-        if (lower.endsWith("s") || lower.endsWith("x") || lower.endsWith("z") || lower.endsWith("ch") || lower.endsWith("sh")) {
-            return word + "es";
-        }
-        return word + "s";
-    }
-
-    private boolean isVowel(char c) {
-        return "aeiou".indexOf(Character.toLowerCase(c)) >= 0;
+        return Identifier.toIdentifier(newName, identifier.isQuoted());
     }
 
 }

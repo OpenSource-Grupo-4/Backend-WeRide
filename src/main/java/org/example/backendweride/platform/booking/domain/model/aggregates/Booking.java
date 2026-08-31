@@ -25,7 +25,7 @@ import org.example.backendweride.platform.shared.domain.model.aggregates.Auditab
 @Getter
 @Setter
 @Entity
-@Table(name = "bookingses")
+@Table(name = "bookings")
 public class Booking extends AuditableAbstractAggregateRoot<Booking> {
 
     @NotNull

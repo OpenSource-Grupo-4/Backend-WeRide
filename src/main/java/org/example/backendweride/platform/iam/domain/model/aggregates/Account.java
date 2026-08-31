@@ -17,6 +17,7 @@ import java.util.Objects;
  * @summary Represents an account in WeRide Platform.
  */
 @Entity
+@Table(name = "accounts")
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Account extends AbstractAggregateRoot<Account> {
