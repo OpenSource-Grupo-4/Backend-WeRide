@@ -6,12 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.backendweride.platform.garage.domain.model.commands.CreateVehicleCommand;
 import org.example.backendweride.platform.garage.domain.model.commands.UpdateVehicleCommand;
+import org.example.backendweride.platform.garage.domain.model.entities.VehicleFeature;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -57,11 +59,12 @@ public class Vehicle {
     @Getter
     private String image;
 
-    @ElementCollection
-    @CollectionTable(name = "vehicle_features", joinColumns = @JoinColumn(name = "vehicle_id"))
-    @Column(name = "feature")
-    @Getter
-    private List<String> features = new ArrayList<>();
+    @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VehicleFeature> featureEntities = new ArrayList<>();
+
+    public List<String> getFeatures() {
+        return featureEntities.stream().map(VehicleFeature::getFeature).collect(Collectors.toList());
+    }
 
     @Getter
     private String maintenanceStatus;
@@ -92,7 +95,7 @@ public class Vehicle {
         this.companyId = command.companyId();
         this.pricePerMinute = command.pricePerMinute();
         this.image = command.image();
-        this.features = command.features();
+        this.featureEntities = toFeatureEntities(command.features());
         this.maintenanceStatus = command.maintenanceStatus();
         this.lastMaintenance = command.lastMaintenance();
         this.nextMaintenance = command.nextMaintenance();
@@ -116,13 +119,18 @@ public class Vehicle {
         this.companyId = command.companyId();
         this.pricePerMinute = command.pricePerMinute();
         this.image = command.image();
-        this.features = command.features();
+        this.featureEntities = toFeatureEntities(command.features());
         this.maintenanceStatus = command.maintenanceStatus();
         this.lastMaintenance = command.lastMaintenance();
         this.nextMaintenance = command.nextMaintenance();
         this.totalKilometers = command.totalKilometers();
         this.rating = command.rating();
         return this;
+    }
+
+    private List<VehicleFeature> toFeatureEntities(List<String> features) {
+        if (features == null) return new ArrayList<>();
+        return features.stream().map(feature -> new VehicleFeature(this, feature)).collect(Collectors.toList());
     }
 
     @Override
