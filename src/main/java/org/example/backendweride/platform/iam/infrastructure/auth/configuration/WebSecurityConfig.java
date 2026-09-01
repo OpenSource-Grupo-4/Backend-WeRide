@@ -75,7 +75,7 @@ public class WebSecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:4200",
                 "https://frontend-we-ride.vercel.app",
-                "https://backend-weride.onrender.com"
+                "https://backend-weride-2uvw.onrender.com"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
@@ -98,14 +98,14 @@ public class WebSecurityConfig {
                         customizer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(
+                                "/health",
                                 "/api/v1/authentication/**",
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/swagger-resources/**",
-                                "/webjars/**",
-                                "/api/v1/professional-profiles"
+                                "/webjars/**"
                         ).permitAll()
                         .anyRequest().authenticated());
         http.authenticationProvider(authenticationProvider());

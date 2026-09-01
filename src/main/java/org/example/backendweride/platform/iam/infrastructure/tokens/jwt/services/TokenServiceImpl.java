@@ -107,15 +107,15 @@ public class TokenServiceImpl implements BearerTokenService {
             LOGGER.info("Token is valida");
             return true;
         } catch (SignatureException e) {
-            LOGGER.error("Invalid token signature: {}", e.getMessage());
+            LOGGER.debug("Invalid token signature: {}", e.getMessage());
         } catch (MalformedJwtException e) {
-            LOGGER.error("Invalid token format: {}", e.getMessage());
+            LOGGER.debug("Invalid token format: {}", e.getMessage());
         } catch (ExpiredJwtException e) {
-            LOGGER.error("Token has expired: {}", e.getMessage());
+            LOGGER.debug("Token has expired: {}", e.getMessage());
         } catch (UnsupportedJwtException e) {
-            LOGGER.error("Unsupported token: {}", e.getMessage());
+            LOGGER.debug("Unsupported token: {}", e.getMessage());
         } catch (IllegalArgumentException e) {
-            LOGGER.error("Token is empty: {}", e.getMessage());
+            LOGGER.debug("Token is empty: {}", e.getMessage());
         }
 
         return false;

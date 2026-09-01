@@ -39,14 +39,16 @@ public class BearerAuthRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             var token = tokenService.getBearerTokenFrom(request);
-            if(Objects.nonNull(token) && tokenService.validateToken(token)) {
+            if (Objects.isNull(token)) {
+                LOGGER.debug("No JWT token provided");
+            } else if (tokenService.validateToken(token)) {
                 var username = tokenService.getUsernameFromToken(token);
                 var userDetails = (UserDetailsImpl) userDetailsService.loadUserByUsername(username);
                 SecurityContextHolder.getContext()
                         .setAuthentication(UsernamePasswordAuthTokenBuilder
                                 .build(userDetails, request));
             } else {
-                LOGGER.warn("Token is not valid");
+                LOGGER.warn("Invalid JWT token");
             }
         } catch(Exception e) {
             LOGGER.error("Cannot set user authentication: {}", e.getMessage());
