@@ -7,4 +7,5 @@ import java.util.Optional;
 public interface ProfileQueryService {
     Optional<Profile> handle(Long id);
 
+    Optional<Profile> handleByUserId(Long userId);
 }

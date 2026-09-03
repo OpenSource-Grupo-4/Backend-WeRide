@@ -51,7 +51,7 @@ class ProfileControllerTest {
     @Test
     void createProfile_usesAuthenticatedUserIdNotResourceBody() {
         when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(42L);
-        var resource = new CreateProfileCommandResource(999L, "Ada", "Lovelace", "ada@weride.com");
+        var resource = new CreateProfileCommandResource("Ada", "Lovelace", "ada@weride.com");
         ArgumentCaptor<CreateProfileCommand> captor = ArgumentCaptor.forClass(CreateProfileCommand.class);
         when(profileCommandService.handle(captor.capture())).thenReturn(Optional.empty());
 

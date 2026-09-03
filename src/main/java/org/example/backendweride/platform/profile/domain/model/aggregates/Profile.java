@@ -9,7 +9,9 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.util.Objects;
 
 @Entity
-@Table(name = "profiles")
+@Table(name = "profiles", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_profile_user", columnNames = {"user_id"})
+})
 @EntityListeners(AuditingEntityListener.class)
 public class Profile {
     @Id
@@ -17,6 +19,7 @@ public class Profile {
     @Getter
     private Long id;
     @Getter
+    @Column(nullable = false)
     private Long userId;
     @Getter
     private String firstName;
@@ -32,6 +35,12 @@ public class Profile {
         this.firstName = profileCommand.firstName();
         this.lastName = profileCommand.lastName();
         this.email = profileCommand.email();
+    }
+
+    public void update(String firstName, String lastName, String email) {
+        if (firstName != null) this.firstName = firstName;
+        if (lastName != null) this.lastName = lastName;
+        if (email != null) this.email = email;
     }
 
     @Override

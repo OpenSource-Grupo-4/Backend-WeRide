@@ -3,10 +3,12 @@ package org.example.backendweride.platform.profile.interfaces;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
+import org.example.backendweride.platform.profile.domain.model.commands.UpdateProfileCommand;
 import org.example.backendweride.platform.profile.domain.services.commands.ProfileCommandService;
 import org.example.backendweride.platform.profile.domain.services.queries.ProfileQueryService;
 import org.example.backendweride.platform.profile.interfaces.resources.CreateProfileCommandResource;
 import org.example.backendweride.platform.profile.interfaces.resources.ProfileResource;
+import org.example.backendweride.platform.profile.interfaces.resources.UpdateProfileResource;
 import org.example.backendweride.platform.profile.interfaces.transform.CreateProfileCommandFromResourceAssembler;
 import org.example.backendweride.platform.profile.interfaces.transform.ProfileResourceFromEntity;
 import org.springframework.http.HttpStatus;
@@ -30,6 +32,9 @@ public class ProfileController {
         this.authenticatedAccountProvider = authenticatedAccountProvider;
     }
 
+    /**
+     * Creates (or upserts) the profile of the authenticated user.
+     */
     @PostMapping
     public ResponseEntity<ProfileResource> createProfile(@Valid @RequestBody CreateProfileCommandResource profileResource) {
         var userId = authenticatedAccountProvider.getCurrentAccountId();
@@ -39,6 +44,29 @@ public class ProfileController {
         return result.map(response -> new ResponseEntity<>(
                 ProfileResourceFromEntity.tpProfileResourceFromEntity(response), CREATED
         )).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Returns the profile of the authenticated user.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<ProfileResource> getMyProfile() {
+        var userId = authenticatedAccountProvider.getCurrentAccountId();
+        var result = this.profileQueryService.handleByUserId(userId);
+        return result.map(profile -> ResponseEntity.ok(ProfileResourceFromEntity.tpProfileResourceFromEntity(profile)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    /**
+     * Updates the profile of the authenticated user.
+     */
+    @PutMapping("/me")
+    public ResponseEntity<ProfileResource> updateMyProfile(@Valid @RequestBody UpdateProfileResource resource) {
+        var userId = authenticatedAccountProvider.getCurrentAccountId();
+        var command = new UpdateProfileCommand(resource.firstName(), resource.lastName(), resource.email());
+        var result = this.profileCommandService.updateProfile(userId, command);
+        return result.map(profile -> ResponseEntity.ok(ProfileResourceFromEntity.tpProfileResourceFromEntity(profile)))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping("/{id}")

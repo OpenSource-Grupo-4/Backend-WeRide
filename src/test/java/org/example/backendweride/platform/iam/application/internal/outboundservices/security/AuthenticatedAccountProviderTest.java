@@ -5,9 +5,12 @@ import org.example.backendweride.platform.iam.infrastructure.persistence.jpa.rep
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,9 +23,11 @@ class AuthenticatedAccountProviderTest {
     private final AccountRepository accountRepository = mock(AccountRepository.class);
     private final AuthenticatedAccountProvider provider = new AuthenticatedAccountProvider(accountRepository);
 
-    private void authenticateAs(String username) {
+    private void authenticateAs(String username, String role) {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getName()).thenReturn(username);
+        GrantedAuthority authority = new SimpleGrantedAuthority(role);
+        when(authentication.getAuthorities()).thenReturn(List.of(authority));
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);
@@ -35,7 +40,7 @@ class AuthenticatedAccountProviderTest {
 
     @Test
     void returnsAccountIdForAuthenticatedUsername() {
-        authenticateAs("auditor@weride.com");
+        authenticateAs("auditor@weride.com", "ROLE_CLIENT");
         Account account = mock(Account.class);
         when(account.getId()).thenReturn(42L);
         when(accountRepository.findByUserName("auditor@weride.com")).thenReturn(Optional.of(account));
@@ -46,8 +51,31 @@ class AuthenticatedAccountProviderTest {
     }
 
     @Test
+    void returnsAccountWithAdminRole() {
+        authenticateAs("admin@weride.com", "ROLE_ADMIN");
+        Account account = mock(Account.class);
+        when(account.getId()).thenReturn(1L);
+        when(accountRepository.findByUserName("admin@weride.com")).thenReturn(Optional.of(account));
+
+        var authenticated = provider.getCurrentAccount();
+
+        assertEquals(1L, authenticated.id());
+        assertEquals("ROLE_ADMIN", authenticated.role());
+    }
+
+    @Test
+    void isCurrentUserAdmin_reflectsAuthorityRole() {
+        authenticateAs("admin@weride.com", "ROLE_ADMIN");
+        Account account = mock(Account.class);
+        when(account.getId()).thenReturn(1L);
+        when(accountRepository.findByUserName("admin@weride.com")).thenReturn(Optional.of(account));
+
+        assertEquals(true, provider.isCurrentUserAdmin());
+    }
+
+    @Test
     void throwsWhenAuthenticatedUsernameHasNoAccount() {
-        authenticateAs("ghost@weride.com");
+        authenticateAs("ghost@weride.com", "ROLE_CLIENT");
         when(accountRepository.findByUserName("ghost@weride.com")).thenReturn(Optional.empty());
 
         assertThrows(RuntimeException.class, provider::getCurrentAccountId);

@@ -20,5 +20,8 @@ public class ProfileQueryServiceImpl implements ProfileQueryService {
         return  profileRepository.findById(id);
     }
 
-
+    @Override
+    public Optional<Profile> handleByUserId(Long userId) {
+        return profileRepository.findByUserId(userId);
+    }
 }

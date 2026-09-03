@@ -1,5 +1,6 @@
 package org.example.backendweride.platform.iam.infrastructure.tokens.jwt.services;
 
+import org.example.backendweride.platform.iam.infrastructure.auth.model.UserDetailsImpl;
 import org.example.backendweride.platform.iam.infrastructure.tokens.jwt.BearerTokenService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -62,12 +64,13 @@ public class TokenServiceImpl implements BearerTokenService {
         return request.getHeader(AUTHORIZATION_PARAMETER_NAME);
     }
 
-    private String buildTokenWithDefaultParameters(String username) {
+    private String buildTokenWithDefaultParameters(String username, String role) {
         var issuedAt = new Date();
         var expiration = DateUtils.addDays(issuedAt, expirationDays);
         var key = getSigningKey();
         return Jwts.builder()
                 .subject(username)
+                .claim("role", role)
                 .issuedAt(issuedAt)
                 .expiration(expiration)
                 .signWith(key)
@@ -87,12 +90,23 @@ public class TokenServiceImpl implements BearerTokenService {
 
     @Override
     public String generateToken(Authentication authentication) {
-        return buildTokenWithDefaultParameters(authentication.getName());
+        var principal = authentication.getPrincipal();
+        if (principal instanceof UserDetailsImpl userDetails) {
+            return buildTokenWithDefaultParameters(authentication.getName(), roleFromAuthorities(userDetails));
+        }
+        return buildTokenWithDefaultParameters(authentication.getName(), "ROLE_CLIENT");
     }
 
     @Override
     public String generateToken(String username) {
-        return buildTokenWithDefaultParameters(username);
+        return buildTokenWithDefaultParameters(username, "ROLE_CLIENT");
+    }
+
+    private String roleFromAuthorities(UserDetailsImpl userDetails) {
+        return userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElse("ROLE_CLIENT");
     }
 
     @Override

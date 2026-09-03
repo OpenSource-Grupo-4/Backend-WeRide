@@ -37,6 +37,10 @@ public class Account extends AbstractAggregateRoot<Account> {
     @Getter
     private String password;
 
+    @Getter
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'ROLE_CLIENT'")
+    private String role = "ROLE_CLIENT";
+
     @Embedded
     @Getter
     private ProfileId profileId;
@@ -111,6 +115,14 @@ public class Account extends AbstractAggregateRoot<Account> {
             throw new IllegalArgumentException("ProfileId cannot be null");
         }
         this.profileId = profileId;
+        return this;
+    }
+
+    public Account assignRole(String role) {
+        if (role == null || role.isBlank()) {
+            throw new IllegalArgumentException("Role cannot be null or empty");
+        }
+        this.role = role.startsWith("ROLE_") ? role : "ROLE_" + role;
         return this;
     }
 

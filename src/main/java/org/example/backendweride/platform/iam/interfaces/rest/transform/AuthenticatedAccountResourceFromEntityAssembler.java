@@ -11,6 +11,7 @@ import org.example.backendweride.platform.iam.interfaces.rest.resources.Authenti
  */
 public class AuthenticatedAccountResourceFromEntityAssembler {
     public static AuthenticatedAccountResource toResourceFromEntity(Account entity, String token) {
-        return new AuthenticatedAccountResource(entity.getId(), token);
+        Long profileId = entity.getProfileId() != null ? entity.getProfileId().profileId() : null;
+        return new AuthenticatedAccountResource(entity.getId(), token, profileId);
     }
 }
