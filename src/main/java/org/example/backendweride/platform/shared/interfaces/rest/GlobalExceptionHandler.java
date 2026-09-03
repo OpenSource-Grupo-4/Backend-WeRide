@@ -1,5 +1,7 @@
 package org.example.backendweride.platform.shared.interfaces.rest;
 
+import org.example.backendweride.platform.shared.domain.model.exceptions.ConflictException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +16,23 @@ import java.util.stream.Collectors;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<String> handleConflict(ConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        // Race fallback: two identical booking requests can slip past the overlap check
+        // and hit the uk_booking_vehicle_start constraint. Map to 409.
+        String message = ex.getMessage() == null ? "" : ex.getMessage().toLowerCase();
+        if (message.contains("uk_booking_vehicle_start") || message.contains("booking_vehicle_start")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Vehicle is already booked for the requested time range");
+        }
+        throw ex;
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {

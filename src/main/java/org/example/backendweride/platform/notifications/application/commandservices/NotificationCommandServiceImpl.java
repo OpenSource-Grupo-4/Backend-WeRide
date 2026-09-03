@@ -20,10 +20,10 @@ public class NotificationCommandServiceImpl implements NotificationCommandServic
     }
 
     @Override
-    public Long handle(CreateNotificationCommand command) {
+    public Notification handle(CreateNotificationCommand command) {
         var notification = new Notification(command);
         notificationRepository.save(notification);
-        return notification.getId();
+        return notification;
     }
 
     // Nueva implementación para marcar como leída

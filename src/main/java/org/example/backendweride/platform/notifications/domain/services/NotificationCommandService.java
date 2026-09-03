@@ -8,7 +8,7 @@ import org.example.backendweride.platform.notifications.domain.model.commands.Up
 import java.util.Optional;
 
 public interface NotificationCommandService {
-    Long handle(CreateNotificationCommand command);
+    Notification handle(CreateNotificationCommand command);
     void handle(MarkNotificationAsReadCommand command);
     Optional<Notification> update(String publicId, String userId, UpdateNotificationCommand command);
     boolean delete(String publicId, String userId);

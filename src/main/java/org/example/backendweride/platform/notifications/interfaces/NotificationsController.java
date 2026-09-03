@@ -42,10 +42,10 @@ public class NotificationsController {
         var command = CreateNotificationCommandFromResourceAssembler.toCommandFromResource(
                 resource, String.valueOf(authenticatedAccountProvider.getCurrentAccountId()));
 
-        // CORRECCIÓN: Llamamos al servicio sin guardar el resultado en una variable
-        notificationCommandService.handle(command);
+        var notification = notificationCommandService.handle(command);
+        var resourceResult = NotificationResourceFromEntityAssembler.toResourceFromEntity(notification);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(resourceResult);
     }
 
     /**

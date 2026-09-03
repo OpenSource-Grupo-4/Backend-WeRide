@@ -1,7 +1,6 @@
 package org.example.backendweride.platform.notifications.interfaces.resources;
 
 public record CreateNotificationResource(
-        String userId,
         String title,
         String message,
         String type,
