@@ -2,6 +2,7 @@ package org.example.backendweride.platform.travelhistory.domain.model.commands;
 
 public record UpdateTravelHistoryCommand(
         Long id,
+        Long userId,
         String location,
         String vehicle,
         String image,
