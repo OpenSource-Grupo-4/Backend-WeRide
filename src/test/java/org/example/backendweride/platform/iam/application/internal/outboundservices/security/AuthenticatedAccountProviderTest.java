@@ -27,7 +27,9 @@ class AuthenticatedAccountProviderTest {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getName()).thenReturn(username);
         GrantedAuthority authority = new SimpleGrantedAuthority(role);
-        when(authentication.getAuthorities()).thenReturn(List.of(authority));
+        @SuppressWarnings("unchecked")
+        java.util.Collection<? extends GrantedAuthority> authorities = java.util.List.of(authority);
+        org.mockito.Mockito.doReturn(authorities).when(authentication).getAuthorities();
         SecurityContext securityContext = mock(SecurityContext.class);
         when(securityContext.getAuthentication()).thenReturn(authentication);
         SecurityContextHolder.setContext(securityContext);

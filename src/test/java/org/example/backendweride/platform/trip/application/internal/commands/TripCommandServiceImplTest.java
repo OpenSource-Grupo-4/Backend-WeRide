@@ -1,5 +1,6 @@
 package org.example.backendweride.platform.trip.application.internal.commands;
 
+import org.example.backendweride.platform.notifications.interfaces.acl.NotificationContextFacade;
 import org.example.backendweride.platform.trip.domain.aggregates.Trip;
 import org.example.backendweride.platform.trip.infrastructure.persistence.jpa.TripRepository;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,8 @@ import static org.mockito.Mockito.*;
 class TripCommandServiceImplTest {
 
     private final TripRepository tripRepository = mock(TripRepository.class);
-    private final TripCommandServiceImpl service = new TripCommandServiceImpl(tripRepository);
+    private final NotificationContextFacade notificationContextFacade = mock(NotificationContextFacade.class);
+    private final TripCommandServiceImpl service = new TripCommandServiceImpl(tripRepository, notificationContextFacade);
 
     @Test
     void deleteById_doesNothing_whenTripBelongsToAnotherUser() {

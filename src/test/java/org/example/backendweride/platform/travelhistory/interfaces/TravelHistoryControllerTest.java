@@ -1,5 +1,6 @@
 package org.example.backendweride.platform.travelhistory.interfaces;
 
+import org.example.backendweride.platform.iam.application.internal.outboundservices.security.AuthenticatedAccountProvider;
 import org.example.backendweride.platform.travelhistory.domain.model.queries.GetAllTravelsHistory;
 import org.example.backendweride.platform.travelhistory.domain.model.queries.GetTravelsHistoryById;
 import org.example.backendweride.platform.travelhistory.domain.services.commandservices.TravelHistoryCommandService;
@@ -20,11 +21,14 @@ class TravelHistoryControllerTest {
 
     private final TravelHistoryCommandService travelHistoryCommandService = mock(TravelHistoryCommandService.class);
     private final TravelHistoryQueryService travelHistoryQueryService = mock(TravelHistoryQueryService.class);
+    private final AuthenticatedAccountProvider authenticatedAccountProvider = mock(AuthenticatedAccountProvider.class);
 
-    private final TravelHistoryController controller = new TravelHistoryController(travelHistoryCommandService, travelHistoryQueryService);
+    private final TravelHistoryController controller = new TravelHistoryController(
+            travelHistoryCommandService, travelHistoryQueryService, authenticatedAccountProvider);
 
     @Test
     void getAllTravelHistories_returnsTravelHistoryResourceNotEntity() {
+        when(authenticatedAccountProvider.isCurrentUserAdmin()).thenReturn(true);
         when(travelHistoryQueryService.handle(any(GetAllTravelsHistory.class)))
                 .thenReturn(Optional.of(List.<TravelHistoryResource>of()));
 
@@ -35,6 +39,7 @@ class TravelHistoryControllerTest {
 
     @Test
     void getTravelHistoryById_returnsTravelHistoryResourceNotEntity() {
+        when(authenticatedAccountProvider.getCurrentAccountId()).thenReturn(1L);
         when(travelHistoryQueryService.handle(any(GetTravelsHistoryById.class)))
                 .thenReturn(Optional.of(List.<TravelHistoryResource>of()));
 

@@ -4,6 +4,8 @@ import org.example.backendweride.platform.booking.domain.model.commands.SaveBook
 import org.example.backendweride.platform.booking.infraestructure.persistence.jpa.BookingRepository;
 import org.example.backendweride.platform.garage.domain.model.aggregates.Vehicle;
 import org.example.backendweride.platform.garage.infrastructure.persistence.jpa.VehicleRepository;
+import org.example.backendweride.platform.location.infrastructure.persistence.jpa.LocationRepository;
+import org.example.backendweride.platform.notifications.interfaces.acl.NotificationContextFacade;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -20,7 +22,10 @@ class BookingCommandServiceImplTest {
 
     private final BookingRepository bookingRepository = mock(BookingRepository.class);
     private final VehicleRepository vehicleRepository = mock(VehicleRepository.class);
-    private final BookingCommandServiceImpl service = new BookingCommandServiceImpl(bookingRepository, vehicleRepository);
+    private final LocationRepository locationRepository = mock(LocationRepository.class);
+    private final NotificationContextFacade notificationContextFacade = mock(NotificationContextFacade.class);
+    private final BookingCommandServiceImpl service = new BookingCommandServiceImpl(
+            bookingRepository, vehicleRepository, locationRepository, notificationContextFacade);
 
     private SaveBookingDraftCommand draftCommand(Long vehicleId) {
         return new SaveBookingDraftCommand(
