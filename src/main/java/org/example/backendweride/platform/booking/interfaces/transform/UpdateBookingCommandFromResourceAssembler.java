@@ -9,11 +9,12 @@ public final class UpdateBookingCommandFromResourceAssembler {
     public static UpdateBookingCommand toCommand(UpdateBookingResource resource) {
         var rating = resource.rating();
         return new UpdateBookingCommand(
-                resource.vehicleId(), resource.startLocationId(), resource.endLocationId(),
+                null,
+                resource.startLocationId(), resource.endLocationId(),
                 resource.reservedAt(), resource.startDate(), resource.endDate(),
-                resource.actualStartDate(), resource.actualEndDate(), resource.status(),
-                resource.totalCost(), resource.discount(), resource.finalCost(),
-                resource.paymentMethod(), resource.paymentStatus(), resource.distance(),
+                resource.actualStartDate(), resource.actualEndDate(), null,
+                null, null, null,
+                resource.paymentMethod(), null, resource.distance(),
                 resource.duration(), resource.averageSpeed(),
                 rating == null ? null : rating.score(), rating == null ? null : rating.comment());
     }

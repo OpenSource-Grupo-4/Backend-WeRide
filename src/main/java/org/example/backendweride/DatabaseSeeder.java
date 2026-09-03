@@ -8,6 +8,7 @@ import org.example.backendweride.platform.plan.domain.model.aggregates.Plan;
 import org.example.backendweride.platform.plan.infrastructure.persistence.jpa.PlanRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,9 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final VehicleRepository vehicleRepository;
     private final PlanRepository planRepository;
 
+    @Value("${app.seed.demo:true}")
+    private boolean seedDemoData;
+
     public DatabaseSeeder(VehicleRepository vehicleRepository, PlanRepository planRepository) {
         this.vehicleRepository = vehicleRepository;
         this.planRepository = planRepository;
@@ -31,6 +35,10 @@ public class DatabaseSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        // Demo vehicles/plans only load when app.seed.demo=true (default). Production
+        // must set app.seed.demo=false so no demo data reaches real environments.
+        if (!seedDemoData) return;
+
         if (vehicleRepository.count() == 0) {
             try {
                 vehicleRepository.saveAll(List.of(

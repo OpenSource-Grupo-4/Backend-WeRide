@@ -28,7 +28,10 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Entity
-@Table(name = "bookings")
+@Table(name = "bookings", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_booking_vehicle_start",
+                columnNames = {"vehicle_id", "start_date"})
+})
 public class Booking extends AuditableAbstractAggregateRoot<Booking> {
 
     @NotNull
@@ -102,10 +105,14 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
     }
 
     /**
-     * Create a booking draft from the command.
+     * Create a draft booking from the command.
      *
      * @param cmd the SaveBookingDraftCommand
      * @return the Booking instance in draft status
+     * @summary Status, cost and payment fields are computed server-side: any values carried
+     *          by the command for status/costs are ignored here and re-derived. When endDate
+     *          is absent it is derived as startDate + duration so the overlap query always
+     *          has a concrete end.
      */
     public static Booking createDraftFrom(SaveBookingDraftCommand cmd) {
         Booking booking = new Booking();
@@ -116,15 +123,17 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
         booking.endLocationId = cmd.endLocationId();
         booking.reservedAt = cmd.reservedAt();
         booking.startDate = cmd.startDate();
-        booking.endDate = cmd.endDate();
+        booking.endDate = cmd.endDate() != null ? cmd.endDate()
+                : (cmd.startDate() != null && cmd.duration() != null
+                    ? cmd.startDate().plusMinutes(cmd.duration()) : null);
         booking.actualStartDate = cmd.actualStartDate();
         booking.actualEndDate = cmd.actualEndDate();
-        booking.status = cmd.status();
-        booking.totalCost = cmd.totalCost();
-        booking.discount = cmd.discount();
-        booking.finalCost = cmd.finalCost();
+        booking.status = "draft";
+        booking.totalCost = BigDecimal.ZERO;
+        booking.discount = BigDecimal.ZERO;
+        booking.finalCost = BigDecimal.ZERO;
         booking.paymentMethod = cmd.paymentMethod();
-        booking.paymentStatus = cmd.paymentStatus();
+        booking.paymentStatus = "pending";
         booking.distance = cmd.distance();
         booking.duration = cmd.duration();
         booking.averageSpeed = cmd.averageSpeed();
@@ -144,7 +153,11 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
      * Create a confirmed booking from the command.
      *
      * @param cmd the CreateBookingCommand
-     * @return the Booking instance with all provided data
+     * @return the Booking instance with the server-derived values (status/costs/payment)
+     * @summary Status, cost and payment fields are computed server-side: any values carried
+     *          by the command for status/costs are ignored here and re-derived. When endDate
+     *          is absent it is derived as startDate + duration so the overlap query always
+     *          has a concrete end.
      */
     public static Booking createConfirmedFrom(CreateBookingCommand cmd) {
         Booking booking = new Booking();
@@ -155,15 +168,17 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
         booking.endLocationId = cmd.endLocationId();
         booking.reservedAt = cmd.reservedAt();
         booking.startDate = cmd.startDate();
-        booking.endDate = cmd.endDate();
+        booking.endDate = cmd.endDate() != null ? cmd.endDate()
+                : (cmd.startDate() != null && cmd.duration() != null
+                    ? cmd.startDate().plusMinutes(cmd.duration()) : null);
         booking.actualStartDate = cmd.actualStartDate();
         booking.actualEndDate = cmd.actualEndDate();
-        booking.status = cmd.status();
-        booking.totalCost = cmd.totalCost();
-        booking.discount = cmd.discount();
-        booking.finalCost = cmd.finalCost();
+        booking.status = "confirmed";
+        booking.totalCost = BigDecimal.ZERO;
+        booking.discount = BigDecimal.ZERO;
+        booking.finalCost = BigDecimal.ZERO;
         booking.paymentMethod = cmd.paymentMethod();
-        booking.paymentStatus = cmd.paymentStatus();
+        booking.paymentStatus = "pending";
         booking.distance = cmd.distance();
         booking.duration = cmd.duration();
         booking.averageSpeed = cmd.averageSpeed();
@@ -188,12 +203,10 @@ public class Booking extends AuditableAbstractAggregateRoot<Booking> {
         if (command.endDate() != null) endDate = command.endDate();
         if (command.actualStartDate() != null) actualStartDate = command.actualStartDate();
         if (command.actualEndDate() != null) actualEndDate = command.actualEndDate();
-        if (command.status() != null) status = command.status();
-        if (command.totalCost() != null) totalCost = command.totalCost();
-        if (command.discount() != null) discount = command.discount();
-        if (command.finalCost() != null) finalCost = command.finalCost();
+        // NOTE: status, costs and paymentStatus are intentionally never updated from a
+        // client command — they are owned by the server (lifecycle transitions like
+        // confirm()/cancel()/start()/complete() and server-side cost calculation).
         if (command.paymentMethod() != null) paymentMethod = command.paymentMethod();
-        if (command.paymentStatus() != null) paymentStatus = command.paymentStatus();
         if (command.distance() != null) distance = command.distance();
         if (command.duration() != null) duration = command.duration();
         if (command.averageSpeed() != null) averageSpeed = command.averageSpeed();

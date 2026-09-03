@@ -1,10 +1,15 @@
 package org.example.backendweride.platform.booking.interfaces.resources;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * UpdateBookingResource record representing the data a client may change on a booking.
+ *
+ * @summary Status, costs and payment status are managed server-side and therefore not
+ *          part of this resource: they cannot be forged by the client. Location and
+ *          timing fields can still be updated (subject to server validation).
+ */
 public record UpdateBookingResource(
-        Long vehicleId,
         Long startLocationId,
         Long endLocationId,
         LocalDateTime reservedAt,
@@ -12,12 +17,7 @@ public record UpdateBookingResource(
         LocalDateTime endDate,
         LocalDateTime actualStartDate,
         LocalDateTime actualEndDate,
-        String status,
-        BigDecimal totalCost,
-        BigDecimal discount,
-        BigDecimal finalCost,
         String paymentMethod,
-        String paymentStatus,
         Double distance,
         Integer duration,
         Double averageSpeed,

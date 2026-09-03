@@ -3,14 +3,15 @@ package org.example.backendweride.platform.booking.interfaces.transform;
 import org.example.backendweride.platform.booking.interfaces.resources.SaveBookingDraftResource;
 import org.example.backendweride.platform.booking.domain.model.commands.SaveBookingDraftCommand;
 
+import java.math.BigDecimal;
+
 /**
  * Assembler class to convert SaveBookingDraftResource to SaveBookingDraftCommand.
+ *
+ * @summary The userId comes from the authenticated session; status, costs and payment
+ *          status are computed server-side and therefore set to null / defaults.
  */
 public class SaveBookingDraftCommandFromResourceAssembler {
-
-    public static SaveBookingDraftCommand toCommand(SaveBookingDraftResource r) {
-        return toCommand(r, r == null ? null : r.userId());
-    }
 
     public static SaveBookingDraftCommand toCommand(SaveBookingDraftResource r, Long userId) {
         if (r == null) return null;
@@ -33,12 +34,12 @@ public class SaveBookingDraftCommandFromResourceAssembler {
             r.endDate(),
             r.actualStartDate(),
             r.actualEndDate(),
-            r.status(),
-            r.totalCost(),
-            r.discount(),
-            r.finalCost(),
-            r.paymentMethod(),
-            r.paymentStatus(),
+            "draft",
+            null,
+            BigDecimal.ZERO,
+            null,
+            r.paymentMethod() != null ? r.paymentMethod() : "card",
+            "pending",
             r.distance(),
             r.duration(),
             r.averageSpeed(),
@@ -47,4 +48,3 @@ public class SaveBookingDraftCommandFromResourceAssembler {
         );
     }
 }
-
